@@ -23,8 +23,8 @@ public class AccessZoneService {
     }
 
     @Transactional
-    public AccessZoneResponse createZone(AccessZoneCreateRequest request){
-        if (zoneRepository.findByZoneName(request.zoneName().toUpperCase()).isPresent()){
+    public AccessZoneResponse createZone(AccessZoneCreateRequest request) {
+        if (zoneRepository.findByZoneName(request.zoneName().toUpperCase()).isPresent()) {
             throw new IllegalArgumentException("Zone with name " + request.zoneName() + " already exists");
         }
 

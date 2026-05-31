@@ -50,6 +50,12 @@ public class AccessController {
         this.accessService.grantAccessToZone(clientId, zoneId);
     }
 
+    @DeleteMapping("/clients/{clientId}/zones/{zoneId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void revokeAccess(@PathVariable Long clientId, @PathVariable Long zoneId) {
+        this.accessService.revokeAccessFromZone(clientId, zoneId);
+    }
+
     @GetMapping("logs/{logId}/client")
     public ClientResponse getClientByLogId(@PathVariable Long logId){
         return this.accessService.getClientByLogId(logId);

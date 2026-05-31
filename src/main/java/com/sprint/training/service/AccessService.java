@@ -70,6 +70,18 @@ public class AccessService {
     }
 
     @Transactional
+    public void revokeAccessFromZone(Long clientId, Long zoneId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
+
+        AccessZone zone = accessZoneRepository.findById(zoneId)
+                .orElseThrow(() -> new ResourceNotFoundException("Zone not found with ID: " + zoneId));
+
+        client.removeAccessZone(zone);
+        clientRepository.save(client);
+    }
+
+    @Transactional
     public AccessLogResponse registerAccess(AccessCheckRequest request) {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
                 .orElseThrow(() -> new ResourceNotFoundException("Access card not found with token:  " + request.rfidToken()));
