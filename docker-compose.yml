@@ -1,0 +1,16 @@
+
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: smart-access-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: smart_access
+      POSTGRES_USER: danek
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
