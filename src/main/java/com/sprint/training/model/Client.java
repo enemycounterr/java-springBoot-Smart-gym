@@ -2,7 +2,6 @@ package com.sprint.training.model;
 
 import jakarta.persistence.*;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -105,15 +104,14 @@ public class Client {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Client))
-            return false;
-
+        if (!(o instanceof Client)) return false;
         Client client = (Client) o;
-        return id != null && id.equals(client.getId());
+
+        return getId() != null && getId().equals(client.getId());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return 31;
     }
 }

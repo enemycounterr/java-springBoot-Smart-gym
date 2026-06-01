@@ -56,11 +56,12 @@ public class AccessZone {
         if (this == o) return true;
         if (!(o instanceof AccessZone)) return false;
         AccessZone that = (AccessZone) o;
-        return id != null && id.equals(that.getId());
+
+        return getId() != null && getId().equals(that.getId());
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return 31;
     }
 }

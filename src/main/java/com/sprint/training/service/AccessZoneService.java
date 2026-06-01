@@ -2,23 +2,27 @@ package com.sprint.training.service;
 
 import com.sprint.training.dto.zone.AccessZoneCreateRequest;
 import com.sprint.training.dto.zone.AccessZoneResponse;
+import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.mapper.AccessZoneMapper;
 import com.sprint.training.model.AccessZone;
+import com.sprint.training.model.Client;
+import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
 public class AccessZoneService {
     private final AccessZoneRepository zoneRepository;
+    private final AccessLogRepository accessLogRepository;
     private final AccessZoneMapper mapper;
 
-    public AccessZoneService(AccessZoneRepository repository, AccessZoneMapper mapper) {
+    public AccessZoneService(AccessZoneRepository repository, AccessLogRepository accessLogRepository, AccessZoneMapper mapper) {
         this.zoneRepository = repository;
+        this.accessLogRepository = accessLogRepository;
         this.mapper = mapper;
     }
 
@@ -37,5 +41,21 @@ public class AccessZoneService {
         return zoneRepository.findAll().stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteZone(Long zoneId){
+        AccessZone zone = this.zoneRepository.findById(zoneId)
+                .orElseThrow(()-> new ResourceNotFoundException("Zone not found with Id: " + zoneId));
+
+        if(this.accessLogRepository.existsByAccessZoneId(zoneId)){
+            throw new IllegalStateException("Cannot delete zone; It contains logs in AccessLog repository");
+        }
+
+        for (Client client: List.copyOf(zone.getClients())){
+            client.removeAccessZone(zone);
+        }
+
+        zoneRepository.delete(zone);
     }
 }

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
     List<AccessLog> findAllByClientId(Long clientId);
+    boolean existsByAccessZoneId(Long zoneId);
 }

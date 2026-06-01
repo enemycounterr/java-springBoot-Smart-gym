@@ -6,7 +6,6 @@ import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.dto.client.ClientUpdateRequest;
 import com.sprint.training.service.ClientService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

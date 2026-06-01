@@ -83,6 +83,10 @@ public class ClientService {
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
 
         client.setActive(isActive);
+        if(client.getAccessCard() != null){
+            client.getAccessCard().setActive(isActive);
+        }
+
         Client updatedClient = clientRepository.save(client);
         return clientMapper.toDto(updatedClient);
     }
