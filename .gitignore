@@ -67,5 +67,4 @@ $RECYCLE.BIN/
 ### Database ###
 *.db
 *.trace.db
-*.sql
 pgdata/
