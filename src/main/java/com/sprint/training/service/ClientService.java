@@ -35,7 +35,7 @@ public class ClientService {
         }
 
         Client newClient = clientMapper.toEntity(request);
-        String generatedToken = "RFID-"+ UUID.randomUUID().toString().substring(0,8).toUpperCase();
+        String generatedToken = "RFID-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         AccessCard card = new AccessCard(generatedToken, newClient);
         newClient.setAccessCard(card);
 
@@ -78,12 +78,12 @@ public class ClientService {
     }
 
     @Transactional
-    public ClientResponse toggleClientStatus(Long id, boolean isActive){
+    public ClientResponse toggleClientStatus(Long id, boolean isActive) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
 
         client.setActive(isActive);
-        if(client.getAccessCard() != null){
+        if (client.getAccessCard() != null) {
             client.getAccessCard().setActive(isActive);
         }
 

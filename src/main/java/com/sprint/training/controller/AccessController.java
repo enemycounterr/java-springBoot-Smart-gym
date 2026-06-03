@@ -22,7 +22,6 @@ public class AccessController {
         this.accessService = accessService;
     }
 
-
     @GetMapping()
     public List<AccessLogResponse> getAll(){
         return this.accessService.getAllAccess();
