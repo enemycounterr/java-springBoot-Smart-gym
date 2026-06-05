@@ -47,7 +47,7 @@ public class ClientService {
     @Transactional(readOnly = true)
     public List<ClientResponse> getAllClients() {
 
-        return clientRepository.findAll().stream()
+        return this.clientRepository.findAllWithAccessCard().stream()
                 .map(clientMapper::toDto)
                 .collect(Collectors.toList());
     }

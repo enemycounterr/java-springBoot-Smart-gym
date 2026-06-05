@@ -48,7 +48,7 @@ public class AccessService {
 
     @Transactional(readOnly = true)
     public List<AccessLogResponse> getAllAccess() {
-        return this.accessLogRepository.findAll().stream()
+        return this.accessLogRepository.findAllWithClientAndZone().stream()
                 .map(accessMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -131,7 +131,7 @@ public class AccessService {
 
     @Transactional(readOnly = true)
     public List<ClientInsideResponse> getClientInside() {
-        List<AccessLog> allLogs = this.accessLogRepository.findAll();
+        List<AccessLog> allLogs = this.accessLogRepository.findAllWithClientAndZone();
 
         Map<Client, Optional<AccessLog>> latestLogsPerClient = allLogs.stream()
                 .collect(Collectors.groupingBy(

@@ -12,6 +12,7 @@ public class ClientMapper {
         if (client == null) return null;
 
         String token = (client.getAccessCard() != null ) ? client.getAccessCard().getRfidToken() : null;
+
         return new ClientResponse(
                 client.getId(),
                 client.getName(),
