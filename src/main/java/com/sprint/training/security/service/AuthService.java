@@ -1,5 +1,6 @@
 package com.sprint.training.security.service;
 
+import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.model.Role;
 import com.sprint.training.model.User;
 import com.sprint.training.security.dto.AuthResponse;
@@ -31,6 +32,10 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
+        if(this.userRepository.existsByUsername(request.username())){
+            throw new ClientAlreadyExistException("Client with name: " + request.username() + " already exists");
+        }
+
         User user = new User();
         user.setUsername(request.username());
 
