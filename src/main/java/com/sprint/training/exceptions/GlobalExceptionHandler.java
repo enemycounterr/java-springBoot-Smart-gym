@@ -75,6 +75,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadArgs(IllegalArgumentException ex) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid arguments were provided",
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex) {
         ApiErrorResponse error = new ApiErrorResponse(

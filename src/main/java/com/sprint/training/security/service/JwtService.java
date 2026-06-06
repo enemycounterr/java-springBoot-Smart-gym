@@ -4,6 +4,7 @@ package com.sprint.training.security.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,16 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private final String SECRET_STRING = "9z8K8HyV8Z2E2E69dMce2K9mY1EwXwI2uI4M2zC9A1A_SECRET_KEY_FOR_SMART_ACCESS_SYSTEM_2026";
+
+    private final String SECRET_STRING;
+
+    private final long EXPIRATION_MS;
+
+    public JwtService(@Value("${jwt.secret}") String secretString, @Value("${jwt.expiration}") long expirationMs) {
+        SECRET_STRING = secretString;
+        EXPIRATION_MS = expirationMs;
+    }
+
 
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
@@ -51,7 +61,7 @@ public class JwtService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hour
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS)) // 24 hour
                 .signWith(getSigningKey())
                 .compact();
     }

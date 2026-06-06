@@ -6,9 +6,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: smart_access
-      POSTGRES_USER: danek
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
