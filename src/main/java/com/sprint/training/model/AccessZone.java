@@ -47,9 +47,6 @@ public class AccessZone {
         return clients;
     }
 
-    public void setClients(Set<Client> clients) {
-        this.clients = clients;
-    }
 
     @Override
     public boolean equals(Object o) {
