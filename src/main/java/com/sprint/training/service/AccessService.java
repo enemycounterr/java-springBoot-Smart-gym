@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,40 +114,23 @@ public class AccessService {
         Client client = this.clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
 
-        List<AccessLog> clientLogs = this.accessLogRepository.findAllByClientId(clientId);
+        long inCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "IN");
 
-        long inCount = clientLogs.stream()
-                .filter(log -> "IN".equalsIgnoreCase(log.getDirection()))
-                .count();
-
-        long outCount = clientLogs.stream()
-                .filter(log -> "OUT".equalsIgnoreCase(log.getDirection()))
-                .count();
+        long outCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "OUT");
 
         return new ClientAccessStatsResponse(clientId, client.getName(), inCount, outCount);
     }
 
     @Transactional(readOnly = true)
     public List<ClientInsideResponse> getClientInside() {
-        List<AccessLog> allLogs = this.accessLogRepository.findAllWithClientAndZone();
+        List<AccessLog> insideLogs = this.accessLogRepository.findCurrentClientsInside();
 
-        Map<Client, Optional<AccessLog>> latestLogsPerClient = allLogs.stream()
-                .collect(Collectors.groupingBy(
-                        AccessLog::getClient,
-                        Collectors.maxBy(Comparator.comparing(AccessLog::getTimeStamp))
-                ));
-
-        return latestLogsPerClient.entrySet().stream()
-                .filter(entry -> entry.getValue().isPresent() && "IN".equalsIgnoreCase(entry.getValue().get().getDirection()))
-                .map(entry -> {
-                    Client client = entry.getKey();
-                    AccessLog latestLog = entry.getValue().get();
-                    return new ClientInsideResponse(
-                            client.getId(),
-                            client.getName(),
-                            latestLog.getTimeStamp()
-                    );
-                })
+        return insideLogs.stream()
+                .map(log -> new ClientInsideResponse(
+                        log.getClient().getId(),
+                        log.getClient().getName(),
+                        log.getTimeStamp()
+                ))
                 .sorted(Comparator.comparing(ClientInsideResponse::insideSince))
                 .collect(Collectors.toList());
     }

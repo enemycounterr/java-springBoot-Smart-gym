@@ -4,8 +4,10 @@ package com.sprint.training.service;
 import com.sprint.training.dto.client.ClientCreateRequest;
 import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.dto.client.ClientUpdateRequest;
+import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
+import com.sprint.training.mapper.AccessZoneMapper;
 import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.model.AccessCard;
 import com.sprint.training.model.Client;
@@ -22,10 +24,12 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+    private final AccessZoneMapper zoneMapper;
 
-    public ClientService(ClientRepository repository, ClientMapper clientMapper) {
+    public ClientService(ClientRepository repository, ClientMapper clientMapper, AccessZoneMapper zoneMapper) {
         this.clientRepository = repository;
         this.clientMapper = clientMapper;
+        this.zoneMapper = zoneMapper;
     }
 
     @Transactional
@@ -89,6 +93,16 @@ public class ClientService {
 
         Client updatedClient = clientRepository.save(client);
         return clientMapper.toDto(updatedClient);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AccessZoneResponse> getClientZones(Long clientId) {
+        Client client = clientRepository.findByIdWithZones(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
+
+        return client.getAccessZones().stream()
+                .map(zoneMapper::toDto)
+                .collect(Collectors.toList());
     }
 
 

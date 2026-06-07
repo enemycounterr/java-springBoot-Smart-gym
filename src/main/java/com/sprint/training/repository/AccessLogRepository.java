@@ -16,4 +16,14 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
     @EntityGraph(attributePaths = {"client", "accessZone"})
     @Query("SELECT l FROM AccessLog l")
     List<AccessLog> findAllWithClientAndZone();
+
+    long countByClientIdAndDirectionIgnoreCase(Long clientId, String direction);
+
+    @Query(
+            "SELECT l FROM AccessLog l " +
+                    "JOIN FETCH l.client " +
+                    "WHERE l.timeStamp = (SELECT MAX(sub.timeStamp) FROM AccessLog sub WHERE sub.client = l.client) " +
+                    "AND UPPER(l.direction) = 'IN'"
+    )
+    List<AccessLog> findCurrentClientsInside();
 }

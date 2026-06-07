@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
@@ -16,4 +17,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @EntityGraph(attributePaths = {"accessCard"})
     @Query("SELECT c FROM Client c")
     List<Client> findAllWithAccessCard();
+
+    @EntityGraph(attributePaths = {"accessZones"})
+    @Query("SELECT c FROM Client c WHERE c.id = :id")
+    Optional<Client> findByIdWithZones(Long id);
 }

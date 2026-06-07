@@ -4,6 +4,7 @@ package com.sprint.training.controller;
 import com.sprint.training.dto.client.ClientCreateRequest;
 import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.dto.client.ClientUpdateRequest;
+import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,11 @@ public class ClientController {
     @PostMapping
     public ClientResponse create(@Valid @RequestBody ClientCreateRequest request){
         return clientService.createClient(request);
+    }
+
+    @GetMapping("/{id}/zones")
+    public List<AccessZoneResponse> getClientZones(@PathVariable Long id) {
+        return clientService.getClientZones(id);
     }
 
 
