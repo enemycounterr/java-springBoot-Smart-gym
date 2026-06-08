@@ -7,6 +7,7 @@ import com.sprint.training.dto.client.ClientUpdateRequest;
 import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.service.ClientService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,27 +23,33 @@ public class ClientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<ClientResponse> getAll(){
         return clientService.getAllClients();
     }
 
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public ClientResponse getClientById(@PathVariable Long id){
         return this.clientService.getClientById(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse update(@PathVariable Long id, @Valid @RequestBody ClientUpdateRequest request) {
         return clientService.updateClient(id, request);
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse changeStatus(@PathVariable Long id, @RequestParam boolean active) {
         return clientService.toggleClientStatus(id, active);
     }
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse create(@Valid @RequestBody ClientCreateRequest request){
         return clientService.createClient(request);
     }

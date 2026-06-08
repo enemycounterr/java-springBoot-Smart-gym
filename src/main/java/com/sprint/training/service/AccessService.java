@@ -6,7 +6,7 @@ import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
 import com.sprint.training.dto.access.ClientInsideResponse;
 import com.sprint.training.dto.client.ClientResponse;
-import com.sprint.training.exceptions.AccessDeniedException;
+import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.mapper.AccessMapper;
@@ -85,13 +85,13 @@ public class AccessService {
                 .orElseThrow(() -> new ResourceNotFoundException("Access card not found with token:  " + request.rfidToken()));
 
         if (!card.isActive()) {
-            throw new AccessDeniedException("Access denied! Card " + request.rfidToken() + " is inactive");
+            throw new ZoneAccessDeniedException("Access denied! Card " + request.rfidToken() + " is inactive");
         }
 
         Client client = card.getClient();
 
         if (!client.isActive()) {
-            throw new AccessDeniedException("Access denied! Client " + client.getName() + " is inactive!");
+            throw new ZoneAccessDeniedException("Access denied! Client " + client.getName() + " is inactive!");
         }
 
         AccessZone accessZone = accessZoneRepository.findById(request.zoneId())
@@ -99,7 +99,7 @@ public class AccessService {
 
         boolean hasAccess = client.getAccessZones().contains(accessZone);
         if (!hasAccess) {
-            throw new AccessDeniedException("Access denied! Client '" + client.getName() +
+            throw new ZoneAccessDeniedException("Access denied! Client '" + client.getName() +
                     "' does not have permission for zone '" + accessZone.getZoneName() + "'");
         }
 

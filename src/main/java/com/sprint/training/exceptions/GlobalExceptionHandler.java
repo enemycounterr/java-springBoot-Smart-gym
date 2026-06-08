@@ -5,6 +5,7 @@ import com.sprint.training.dto.common.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(ClientAlreadyExistException.class)
     public ResponseEntity<ApiErrorResponse> handleClientAlreadyExist(ClientAlreadyExistException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
@@ -56,6 +58,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                "Access denied: You do not have the required permissions to perform this action"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(ZoneAccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleZoneAccessDenied(ZoneAccessDeniedException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 "Forbidden",

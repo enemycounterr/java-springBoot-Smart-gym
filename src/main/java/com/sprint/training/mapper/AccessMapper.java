@@ -28,7 +28,5 @@ public class AccessMapper {
         if (request == null || client == null || accessZone == null) return null;
 
         return new AccessLog(request.direction(), client, accessZone);
-
-
     }
 }

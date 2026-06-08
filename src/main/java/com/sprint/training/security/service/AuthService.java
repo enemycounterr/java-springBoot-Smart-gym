@@ -58,6 +58,7 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("System user not found: " + request.username()));
 
         String jwtToken = this.jwtService.generateToken(user);
+        System.out.println("_------------------"+ jwtToken);
 
         return new AuthResponse(jwtToken);
     }
