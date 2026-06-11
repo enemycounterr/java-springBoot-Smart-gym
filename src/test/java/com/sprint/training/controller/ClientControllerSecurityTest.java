@@ -77,6 +77,6 @@ public class ClientControllerSecurityTest {
                                   "email": "valid@mail.com"
                                 }
                                 """))
-                .andExpect(status().is2xxSuccessful()); // Доступ будет успешно открыт, так как роль ADMIN не сотрется!
+                .andExpect(status().is2xxSuccessful());
     }
 }
