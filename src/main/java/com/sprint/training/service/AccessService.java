@@ -19,11 +19,13 @@ import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,6 +103,12 @@ public class AccessService {
         if (!hasAccess) {
             throw new ZoneAccessDeniedException("Access denied! Client '" + client.getName() +
                     "' does not have permission for zone '" + accessZone.getZoneName() + "'");
+        }
+
+        Optional<AccessLog> latestLog = this.accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(client.getId());
+
+        if (latestLog.isPresent() && latestLog.get().getDirection().equalsIgnoreCase(request.direction())) {
+            throw new AccessDeniedException("Anti-Passback violation!");
         }
 
         AccessLog log = accessMapper.toEntity(request, client, accessZone);

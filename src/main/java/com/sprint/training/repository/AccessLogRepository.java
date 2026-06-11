@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
@@ -28,4 +29,6 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
                     "AND UPPER(l.direction) = 'IN'"
     )
     List<AccessLog> findCurrentClientsInside();
+
+    Optional<AccessLog> findFirstByClientIdOrderByTimeStampDesc(Long clientId);
 }
