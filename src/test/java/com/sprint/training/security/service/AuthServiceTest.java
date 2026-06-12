@@ -51,7 +51,7 @@ public class AuthServiceTest {
 
         // ASSERT
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(expectedToken, response.token());
+        Assertions.assertEquals(expectedToken, response.accessToken());
     }
 
     @Test

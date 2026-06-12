@@ -3,6 +3,7 @@ package com.sprint.training.security.controller;
 
 import com.sprint.training.security.dto.AuthResponse;
 import com.sprint.training.security.dto.LoginRequest;
+import com.sprint.training.security.dto.RefreshRequest;
 import com.sprint.training.security.dto.RegisterRequest;
 import com.sprint.training.security.service.AuthService;
 import jakarta.validation.Valid;
@@ -29,6 +30,11 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@RequestBody RefreshRequest request) {
+        return authService.refresh(request);
     }
 
 }

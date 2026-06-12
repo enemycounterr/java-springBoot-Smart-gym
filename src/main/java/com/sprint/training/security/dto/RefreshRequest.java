@@ -1,7 +1,6 @@
 package com.sprint.training.security.dto;
 
-public record AuthResponse(
-        String accessToken,
+public record RefreshRequest(
         String refreshToken
 ) {
 }
