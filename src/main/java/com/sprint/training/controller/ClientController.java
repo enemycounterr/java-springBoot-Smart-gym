@@ -55,6 +55,7 @@ public class ClientController {
     }
 
     @GetMapping("/{id}/zones")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<AccessZoneResponse> getClientZones(@PathVariable Long id) {
         return clientService.getClientZones(id);
     }
