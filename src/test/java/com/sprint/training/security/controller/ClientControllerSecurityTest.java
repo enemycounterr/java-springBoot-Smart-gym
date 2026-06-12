@@ -1,6 +1,7 @@
-package com.sprint.training.controller;
+package com.sprint.training.security.controller;
 
 
+import com.sprint.training.controller.ClientController;
 import com.sprint.training.security.config.SecurityConfig;
 import com.sprint.training.security.filter.JwtAuthenticationFilter;
 import com.sprint.training.service.ClientService;

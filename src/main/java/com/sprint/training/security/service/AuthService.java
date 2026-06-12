@@ -73,7 +73,6 @@ public class AuthService {
         User user = this.userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new UsernameNotFoundException("System user not found: " + request.username()));
 
-
         refreshTokenRepository.deleteAllByUserId(user.getId());
 
         return buildAuthResponse(user);
@@ -98,7 +97,6 @@ public class AuthService {
     public void revokeAllUserTokens(Long userId) {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
-
 
     private AuthResponse buildAuthResponse(User user) {
         String accessToken = jwtService.generateToken(user);

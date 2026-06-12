@@ -4,6 +4,7 @@ import com.sprint.training.model.Role;
 import com.sprint.training.model.User;
 import com.sprint.training.security.dto.AuthResponse;
 import com.sprint.training.security.dto.LoginRequest;
+import com.sprint.training.security.repository.RefreshTokenRepository;
 import com.sprint.training.security.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,8 +24,13 @@ public class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
     @Mock
     private JwtService jwtService;
+
     @Mock
     private AuthenticationManager authenticationManager;
 
