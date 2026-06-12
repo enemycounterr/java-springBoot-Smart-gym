@@ -7,10 +7,9 @@ import com.sprint.training.security.dto.RefreshRequest;
 import com.sprint.training.security.dto.RegisterRequest;
 import com.sprint.training.security.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -35,6 +34,13 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refresh(@RequestBody RefreshRequest request) {
         return authService.refresh(request);
+    }
+
+    @PostMapping("/revoke/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> revokeUserTokens(@PathVariable Long userId) {
+        authService.revokeAllUserTokens(userId);
+        return ResponseEntity.noContent().build();
     }
 
 }

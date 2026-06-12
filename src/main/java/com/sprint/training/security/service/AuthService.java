@@ -96,9 +96,7 @@ public class AuthService {
 
     @Transactional
     public void revokeAllUserTokens(Long userId) {
-        refreshTokenRepository.findByToken(userId.toString())
-                .ifPresent(token -> token.setRevoked(true));
-        refreshTokenRepository.deleteAllByUserId(userId);
+        refreshTokenRepository.revokeAllByUserId(userId);
     }
 
 
