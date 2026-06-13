@@ -1,6 +1,7 @@
 package com.sprint.training.security.config;
 
 
+import com.sprint.training.model.User;
 import com.sprint.training.security.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 @Configuration
 public class ApplicationConfig {
@@ -21,8 +24,16 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User of system not found: " + username));
+        return identifier -> {
+            Optional<User> byUsername = userRepository.findByUsername(identifier);
+            if (byUsername.isPresent()) {
+                return byUsername.get();
+            }
+
+            return userRepository.findByEmail(identifier)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
+
+        };
     }
 
     @Bean

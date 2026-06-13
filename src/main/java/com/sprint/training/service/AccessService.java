@@ -106,7 +106,6 @@ public class AccessService {
         }
 
         Optional<AccessLog> latestLog = this.accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(client.getId());
-
         if (latestLog.isPresent() && latestLog.get().getDirection().equalsIgnoreCase(request.direction())) {
             throw new AccessDeniedException("Anti-Passback violation!");
         }

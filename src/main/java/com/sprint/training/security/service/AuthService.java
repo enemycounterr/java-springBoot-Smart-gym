@@ -4,10 +4,7 @@ import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.model.Role;
 import com.sprint.training.model.User;
-import com.sprint.training.security.dto.AuthResponse;
-import com.sprint.training.security.dto.LoginRequest;
-import com.sprint.training.security.dto.RefreshRequest;
-import com.sprint.training.security.dto.RegisterRequest;
+import com.sprint.training.security.dto.*;
 import com.sprint.training.security.model.RefreshToken;
 import com.sprint.training.security.repository.RefreshTokenRepository;
 import com.sprint.training.security.repository.UserRepository;
@@ -46,18 +43,27 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
 
-        if(this.userRepository.existsByUsername(request.username())){
+        if (this.userRepository.existsByUsername(request.username())) {
             throw new ClientAlreadyExistException("Client with name: " + request.username() + " already exists");
         }
 
-        User user = new User();
-        user.setUsername(request.username());
+        if (request.email() != null && userRepository.existsByEmail(request.email())) {
+            throw new ClientAlreadyExistException("User with email: " + request.email() + " already exists");
+        }
 
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(Role.valueOf(request.role().toUpperCase()));
+        User user = new User(
+                request.username(),
+                passwordEncoder.encode(request.password()),
+                Role.valueOf(request.role().toUpperCase())
+        );
+        user.setEmail(request.email());
+
+//        user.setUsername(request.username());
+//
+//        user.setPassword(passwordEncoder.encode(request.password()));
+//        user.setRole(Role.valueOf(request.role().toUpperCase()));
 
         User savedUser = this.userRepository.save(user);
-
         return buildAuthResponse(savedUser);
     }
 
@@ -71,6 +77,7 @@ public class AuthService {
         );
 
         User user = this.userRepository.findByUsername(request.username())
+                .or(() -> this.userRepository.findByEmail(request.username()))
                 .orElseThrow(() -> new UsernameNotFoundException("System user not found: " + request.username()));
 
         refreshTokenRepository.deleteAllByUserId(user.getId());
@@ -79,11 +86,23 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse refresh(RefreshRequest refreshRequest){
-        RefreshToken refreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
-                .orElseThrow(()-> new ResourceNotFoundException("Refresh token is invalid or expired"));
+    public void updateEmail(String username, UpdateEmailRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        if (refreshToken.isRevoked() || refreshToken.isExpired()){
+        if (userRepository.existsByEmail(request.email())) {
+            throw new ClientAlreadyExistException("Email " + request.email() + " is already taken");
+        }
+        //dirty checking
+        user.setEmail(request.email());
+    }
+
+    @Transactional
+    public AuthResponse refresh(RefreshRequest refreshRequest) {
+        RefreshToken refreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token is invalid or expired"));
+
+        if (refreshToken.isRevoked() || refreshToken.isExpired()) {
             throw new AccessDeniedException("Refresh token is invalid or expired");
         }
 

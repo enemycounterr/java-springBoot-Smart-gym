@@ -1,5 +1,6 @@
 package com.sprint.training.security.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record RegisterRequest(
@@ -10,6 +11,9 @@ public record RegisterRequest(
         String password,
 
         @NotBlank(message = "Role cannot be empty (ADMIN or GUARD)")
-        String role
+        String role,
+
+        @Email(message = "Invalid email type")
+        String email
 ) {
 }

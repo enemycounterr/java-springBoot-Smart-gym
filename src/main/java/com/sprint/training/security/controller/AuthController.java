@@ -1,14 +1,13 @@
 package com.sprint.training.security.controller;
 
 
-import com.sprint.training.security.dto.AuthResponse;
-import com.sprint.training.security.dto.LoginRequest;
-import com.sprint.training.security.dto.RefreshRequest;
-import com.sprint.training.security.dto.RegisterRequest;
+import com.sprint.training.security.dto.*;
 import com.sprint.training.security.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,6 +39,16 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> revokeUserTokens(@PathVariable Long userId) {
         authService.revokeAllUserTokens(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/email")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> updateEmail(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UpdateEmailRequest request
+    ) {
+        authService.updateEmail(userDetails.getUsername(), request);
         return ResponseEntity.noContent().build();
     }
 
