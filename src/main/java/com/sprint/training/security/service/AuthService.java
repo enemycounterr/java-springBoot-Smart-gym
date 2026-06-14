@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -69,16 +70,15 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        this.authenticationManager.authenticate(
+
+        Authentication authenticate = this.authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
                         request.password()
                 )
         );
 
-        User user = this.userRepository.findByUsername(request.username())
-                .or(() -> this.userRepository.findByEmail(request.username()))
-                .orElseThrow(() -> new UsernameNotFoundException("System user not found: " + request.username()));
+        User user = (User) authenticate.getPrincipal();
 
         refreshTokenRepository.deleteAllByUserId(user.getId());
 
