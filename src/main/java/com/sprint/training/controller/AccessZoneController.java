@@ -30,7 +30,7 @@ public class AccessZoneController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<AccessZoneResponse> getAll() {
-        return zoneService.getAllZones();
+        return this.zoneService.getAllZones();
     }
 
     @DeleteMapping("/{id}")

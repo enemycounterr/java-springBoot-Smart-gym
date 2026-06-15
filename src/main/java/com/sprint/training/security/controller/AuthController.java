@@ -22,23 +22,23 @@ public class AuthController {
 
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
+        return this.authService.register(request);
     }
 
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+        return this.authService.login(request);
     }
 
     @PostMapping("/refresh")
     public AuthResponse refresh(@RequestBody RefreshRequest request) {
-        return authService.refresh(request);
+        return this.authService.refresh(request);
     }
 
     @PostMapping("/revoke/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> revokeUserTokens(@PathVariable Long userId) {
-        authService.revokeAllUserTokens(userId);
+        this.authService.revokeAllUserTokens(userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -48,7 +48,7 @@ public class AuthController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateEmailRequest request
     ) {
-        authService.updateEmail(userDetails.getUsername(), request);
+        this.authService.updateEmail(userDetails.getUsername(), request);
         return ResponseEntity.noContent().build();
     }
 

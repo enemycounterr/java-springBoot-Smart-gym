@@ -25,7 +25,7 @@ public class ClientController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<ClientResponse> getAll(){
-        return clientService.getAllClients();
+        return this.clientService.getAllClients();
     }
 
 
@@ -38,26 +38,26 @@ public class ClientController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse update(@PathVariable Long id, @Valid @RequestBody ClientUpdateRequest request) {
-        return clientService.updateClient(id, request);
+        return this.clientService.updateClient(id, request);
     }
 
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse changeStatus(@PathVariable Long id, @RequestParam boolean active) {
-        return clientService.toggleClientStatus(id, active);
+        return this.clientService.toggleClientStatus(id, active);
     }
 
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse create(@Valid @RequestBody ClientCreateRequest request){
-        return clientService.createClient(request);
+        return this.clientService.createClient(request);
     }
 
     @GetMapping("/{id}/zones")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<AccessZoneResponse> getClientZones(@PathVariable Long id) {
-        return clientService.getClientZones(id);
+        return this.clientService.getClientZones(id);
     }
 
 
