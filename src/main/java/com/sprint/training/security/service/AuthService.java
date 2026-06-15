@@ -86,6 +86,23 @@ public class AuthService {
     }
 
     @Transactional
+    public AuthResponse processOAuth2PostLogin(String email, String githubLogin) {
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User(
+                    githubLogin,
+                    passwordEncoder.encode(UUID.randomUUID().toString()),
+                    Role.GUARD
+            );
+            newUser.setEmail(email);
+            return userRepository.save(newUser);
+        });
+
+        refreshTokenRepository.deleteAllByUserId(user.getId());
+
+        return buildAuthResponse(user);
+    }
+
+    @Transactional
     public void updateEmail(String username, UpdateEmailRequest request) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
