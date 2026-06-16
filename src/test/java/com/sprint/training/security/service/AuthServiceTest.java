@@ -1,7 +1,7 @@
 package com.sprint.training.security.service;
 
-import com.sprint.training.model.Role;
-import com.sprint.training.model.User;
+import com.sprint.training.security.model.Role;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.dto.AuthResponse;
 import com.sprint.training.security.dto.LoginRequest;
 import com.sprint.training.security.repository.RefreshTokenRepository;

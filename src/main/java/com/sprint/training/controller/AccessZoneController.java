@@ -23,7 +23,7 @@ public class AccessZoneController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public AccessZoneResponse create(@Valid @RequestBody AccessZoneCreateRequest request){
+    public AccessZoneResponse create(@Valid @RequestBody AccessZoneCreateRequest request) {
         return this.zoneService.createZone(request);
     }
 

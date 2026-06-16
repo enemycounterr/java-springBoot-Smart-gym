@@ -1,7 +1,7 @@
 package com.sprint.training.security.config;
 
 
-import com.sprint.training.model.User;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

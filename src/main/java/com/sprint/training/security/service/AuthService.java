@@ -2,8 +2,8 @@ package com.sprint.training.security.service;
 
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
-import com.sprint.training.model.Role;
-import com.sprint.training.model.User;
+import com.sprint.training.security.model.Role;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.dto.*;
 import com.sprint.training.security.model.RefreshToken;
 import com.sprint.training.security.repository.RefreshTokenRepository;

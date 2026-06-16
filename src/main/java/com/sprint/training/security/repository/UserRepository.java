@@ -1,6 +1,6 @@
 package com.sprint.training.security.repository;
 
-import com.sprint.training.model.User;
+import com.sprint.training.security.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

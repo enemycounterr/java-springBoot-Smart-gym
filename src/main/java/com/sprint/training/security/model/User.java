@@ -1,4 +1,4 @@
-package com.sprint.training.model;
+package com.sprint.training.security.model;
 
 
 import jakarta.persistence.*;

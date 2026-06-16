@@ -1,7 +1,6 @@
 package com.sprint.training.security.model;
 
 
-import com.sprint.training.model.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
