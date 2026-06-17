@@ -29,6 +29,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.startsWith("/api/v1/auth/") ||
+                path.startsWith("/oauth2/") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -51,7 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try{
             username = this.jwtService.extractUsername(jwt);
         }catch (JwtException e){
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token is expired or invalid\"}");
             return;
         }
 

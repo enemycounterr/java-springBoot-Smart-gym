@@ -4,6 +4,7 @@ package com.sprint.training.security.controller;
 import com.sprint.training.controller.ClientController;
 import com.sprint.training.security.config.SecurityConfig;
 import com.sprint.training.security.filter.JwtAuthenticationFilter;
+import com.sprint.training.security.handler.OAuth2LoginSuccessHandler;
 import com.sprint.training.service.ClientService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,6 +36,9 @@ public class ClientControllerSecurityTest {
 
     @MockitoBean
     private ClientService clientService;
+
+    @MockitoBean
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @TestConfiguration
     static class TestFilterConfig {

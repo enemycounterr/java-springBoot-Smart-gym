@@ -13,10 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +44,6 @@ public class AuthServiceTest {
 
     @Test
     public void login_whenCredentialsAreValid_shouldReturnAuthResponseWithToken() {
-        //ARRANGE
         LoginRequest request = new LoginRequest("danek", "admin");
 
         User fakeUser = new User();
@@ -48,32 +52,30 @@ public class AuthServiceTest {
 
         String expectedToken = "mocked-jwt-token";
 
-        when(userRepository.findByUsername("danek")).thenReturn(Optional.of(fakeUser));
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(fakeUser);
+        when(authenticationManager.authenticate(any())).thenReturn(authentication);
 
         when(jwtService.generateToken(fakeUser)).thenReturn(expectedToken);
 
-        //ACT
         AuthResponse response = authService.login(request);
 
-        // ASSERT
         Assertions.assertNotNull(response);
         Assertions.assertEquals(expectedToken, response.accessToken());
     }
 
     @Test
-    public void login_whenUserDoesNotExist_shouldThrowUsernameNotFoundException() {
+    public void login_whenUserDoesNotExist_shouldThrowBadCredentialsException() {
 
         LoginRequest request = new LoginRequest("unknown", "password");
 
-        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
 
 
-        UsernameNotFoundException exception = Assertions.assertThrows(
-                UsernameNotFoundException.class,
-                () -> authService.login(request)
-        );
-
-        Assertions.assertEquals("System user not found: unknown", exception.getMessage());
+        assertThrows(BadCredentialsException.class,
+                () -> authService.login(request));
     }
 
 }
