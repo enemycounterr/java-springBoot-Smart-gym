@@ -29,6 +29,20 @@ public class AccessController {
         return this.accessService.getAllAccess();
     }
 
+    @PostMapping("/clients/{clientId}/zones/{zoneId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void grantAccess(@PathVariable Long clientId, @PathVariable Long zoneId) {
+        this.accessService.grantAccessToZone(clientId, zoneId);
+    }
+
+    @DeleteMapping("/clients/{clientId}/zones/{zoneId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
+    public void revokeAccess(@PathVariable Long clientId, @PathVariable Long zoneId) {
+        this.accessService.revokeAccessFromZone(clientId, zoneId);
+    }
+
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public AccessLogResponse register(@Valid @RequestBody AccessCheckRequest request){
@@ -45,20 +59,6 @@ public class AccessController {
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<ClientInsideResponse> getClientInside(){
         return this.accessService.getClientInside();
-    }
-
-    @PostMapping("/clients/{clientId}/zones/{zoneId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN')")
-    public void grantAccess(@PathVariable Long clientId, @PathVariable Long zoneId) {
-        this.accessService.grantAccessToZone(clientId, zoneId);
-    }
-
-    @DeleteMapping("/clients/{clientId}/zones/{zoneId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN')")
-    public void revokeAccess(@PathVariable Long clientId, @PathVariable Long zoneId) {
-        this.accessService.revokeAccessFromZone(clientId, zoneId);
     }
 
     @GetMapping("logs/{logId}/client")

@@ -28,7 +28,6 @@ public class ClientController {
         return this.clientService.getAllClients();
     }
 
-
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public ClientResponse getClientById(@PathVariable Long id){
