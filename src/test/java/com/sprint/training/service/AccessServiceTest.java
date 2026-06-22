@@ -2,6 +2,7 @@ package com.sprint.training.service;
 
 
 import com.sprint.training.dto.access.AccessCheckRequest;
+import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.model.AccessCard;
 import com.sprint.training.model.AccessLog;
 import com.sprint.training.model.AccessZone;
@@ -35,7 +36,7 @@ public class AccessServiceTest {
     private AccessService accessService;
 
     @Test
-    public void registerAccess_whenDoubleIn_shouldThrowAccessDeniedException() {
+    public void registerAccess_whenDoubleIn_shouldThrowZoneAccessDeniedException() {
 
         String token = "RFID-123";
         Client client = new Client(1L, "Danek", "danek@mail.com", true);
@@ -53,7 +54,7 @@ public class AccessServiceTest {
 
         when(accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(1L)).thenReturn(Optional.of(lastLog));
 
-        assertThrows(AccessDeniedException.class, () -> {
+        assertThrows(ZoneAccessDeniedException.class, () -> {
             accessService.registerAccess(request);
         });
     }
