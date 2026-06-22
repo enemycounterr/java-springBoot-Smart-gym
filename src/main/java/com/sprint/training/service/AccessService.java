@@ -107,7 +107,8 @@ public class AccessService {
 
         Optional<AccessLog> latestLog = this.accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(client.getId());
         if (latestLog.isPresent() && latestLog.get().getDirection().equalsIgnoreCase(request.direction())) {
-            throw new AccessDeniedException("Anti-Passback violation!");
+            throw new ZoneAccessDeniedException("Anti-Passback violation! Client '" + client.getName() +
+                    "' already performed direction: " + request.direction());
         }
 
         AccessLog log = accessMapper.toEntity(request, client, accessZone);
