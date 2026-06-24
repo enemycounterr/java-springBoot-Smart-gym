@@ -31,6 +31,14 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres-db
       
 volumes:
   postgres_data:
