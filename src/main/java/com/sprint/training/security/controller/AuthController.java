@@ -35,13 +35,6 @@ public class AuthController {
         return this.authService.refresh(request);
     }
 
-    @PostMapping("/revoke/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> revokeUserTokens(@PathVariable Long userId) {
-        this.authService.revokeAllUserTokens(userId);
-        return ResponseEntity.noContent().build();
-    }
-
     @PatchMapping("/email")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> updateEmail(

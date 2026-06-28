@@ -2,10 +2,10 @@ package com.sprint.training.security.service;
 
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
-import com.sprint.training.security.model.Role;
-import com.sprint.training.security.model.User;
 import com.sprint.training.security.dto.*;
 import com.sprint.training.security.model.RefreshToken;
+import com.sprint.training.security.model.Role;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.repository.RefreshTokenRepository;
 import com.sprint.training.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -114,19 +115,35 @@ public class AuthService {
         user.setEmail(request.email());
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = AccessDeniedException.class)
     public AuthResponse refresh(RefreshRequest refreshRequest) {
-        RefreshToken refreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
-                .orElseThrow(() -> new ResourceNotFoundException("Refresh token is invalid or expired"));
+        RefreshToken oldRefreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
 
-        if (refreshToken.isRevoked() || refreshToken.isExpired()) {
-            throw new AccessDeniedException("Refresh token is invalid or expired");
+        if (oldRefreshToken.isRevoked()) {
+            this.refreshTokenRepository.revokeAllByUserId(oldRefreshToken.getUser().getId());
+            throw new AccessDeniedException("Security alert: Token reuse detected. All sessions terminated.");
         }
 
-        User user = refreshToken.getUser();
-        String newAccessToken = jwtService.generateToken(user);
+        if (oldRefreshToken.isExpired()) {
+            throw new AccessDeniedException("Refresh token is expired. Please sign in again.");
+        }
 
-        return new AuthResponse(newAccessToken, refreshToken.getToken());
+        oldRefreshToken.setRevoked(true);
+        this.refreshTokenRepository.save(oldRefreshToken);
+
+        User user = oldRefreshToken.getUser();
+        String accessToken = this.jwtService.generateToken(user);
+
+        RefreshToken newRefreshToken = new RefreshToken(
+                UUID.randomUUID().toString(),
+                user,
+                oldRefreshToken.getExpiresAt()
+        );
+        this.refreshTokenRepository.save(newRefreshToken);
+
+        return new AuthResponse(accessToken, newRefreshToken.getToken());
+
     }
 
     @Transactional
