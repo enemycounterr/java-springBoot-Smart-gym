@@ -44,15 +44,15 @@ public class AccessZoneService {
     }
 
     @Transactional
-    public void deleteZone(Long zoneId){
+    public void deleteZone(Long zoneId) {
         AccessZone zone = this.zoneRepository.findById(zoneId)
-                .orElseThrow(()-> new ResourceNotFoundException("Zone not found with Id: " + zoneId));
+                .orElseThrow(() -> new ResourceNotFoundException("Zone not found with Id: " + zoneId));
 
-        if(this.accessLogRepository.existsByAccessZoneId(zoneId)){
+        if (this.accessLogRepository.existsByAccessZoneId(zoneId)) {
             throw new IllegalStateException("Cannot delete zone; It contains logs in AccessLog repository");
         }
 
-        for (Client client: List.copyOf(zone.getClients())){
+        for (Client client : List.copyOf(zone.getClients())) {
             client.removeAccessZone(zone);
         }
 

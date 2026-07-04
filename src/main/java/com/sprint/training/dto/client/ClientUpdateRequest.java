@@ -2,13 +2,12 @@ package com.sprint.training.dto.client;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public record ClientUpdateRequest(
-
-        @NotBlank(message = "Name cannot be empty")
+        @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
         String name,
 
-        @NotBlank(message = "Email cannot be empty")
         @Email(message = "Incorrect format of email")
         String email
 ) {

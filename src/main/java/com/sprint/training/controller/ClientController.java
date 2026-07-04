@@ -34,7 +34,7 @@ public class ClientController {
         return this.clientService.getClientById(id);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ClientResponse update(@PathVariable Long id, @Valid @RequestBody ClientUpdateRequest request) {
         return this.clientService.updateClient(id, request);

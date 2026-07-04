@@ -68,12 +68,16 @@ public class ClientService {
         Client client = this.clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
 
-        if (!client.getEmail().equalsIgnoreCase(request.email()) && clientRepository.existsByEmail(request.email())) {
-            throw new ClientAlreadyExistException("Email " + request.email() + " is already taken");
+        if (request.name() != null) {
+            client.setName(request.name());
         }
 
-        client.setName(request.name());
-        client.setEmail(request.email());
+        if (request.email() != null) {
+            if (!client.getEmail().equalsIgnoreCase(request.email()) && clientRepository.existsByEmail(request.email())) {
+                throw new ClientAlreadyExistException("Email " + request.email() + " is already taken");
+            }
+            client.setEmail(request.email());
+        }
 
         Client updatedClient = this.clientRepository.save(client);
 
