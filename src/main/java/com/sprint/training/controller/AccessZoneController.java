@@ -1,6 +1,7 @@
 package com.sprint.training.controller;
 
 
+import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.dto.zone.AccessZoneCreateRequest;
 import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.service.AccessZoneService;
@@ -38,6 +39,12 @@ public class AccessZoneController {
     @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable Long id) {
         this.zoneService.deleteZone(id);
+    }
+
+    @GetMapping("/{id}/clients")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
+    public List<ClientResponse> getClientsByZone(@PathVariable Long id) {
+        return this.zoneService.getClientsByZone(id);
     }
 
 }

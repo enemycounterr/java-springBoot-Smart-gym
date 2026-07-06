@@ -1,13 +1,16 @@
 package com.sprint.training.service;
 
+import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.dto.zone.AccessZoneCreateRequest;
 import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.mapper.AccessZoneMapper;
+import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.model.AccessZone;
 import com.sprint.training.model.Client;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
+import com.sprint.training.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +23,15 @@ public class AccessZoneService {
     private final AccessLogRepository accessLogRepository;
     private final AccessZoneMapper mapper;
 
-    public AccessZoneService(AccessZoneRepository repository, AccessLogRepository accessLogRepository, AccessZoneMapper mapper) {
+    private final ClientRepository clientRepository;
+    private final ClientMapper clientMapper;
+
+    public AccessZoneService(AccessZoneRepository repository, AccessLogRepository accessLogRepository, AccessZoneMapper mapper, ClientRepository clientRepository, ClientMapper clientMapper) {
         this.zoneRepository = repository;
         this.accessLogRepository = accessLogRepository;
         this.mapper = mapper;
+        this.clientRepository = clientRepository;
+        this.clientMapper = clientMapper;
     }
 
     @Transactional
@@ -57,5 +65,16 @@ public class AccessZoneService {
         }
 
         zoneRepository.delete(zone);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClientResponse> getClientsByZone(Long zoneId) {
+        if (!zoneRepository.existsById(zoneId)) {
+            throw new ResourceNotFoundException("Zone not found with Id: " + zoneId);
+        }
+
+        return clientRepository.findAllByAccessZoneId(zoneId).stream()
+                .map(clientMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
