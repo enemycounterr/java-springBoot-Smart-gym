@@ -6,9 +6,9 @@ import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
 import com.sprint.training.dto.access.ClientInsideResponse;
 import com.sprint.training.dto.client.ClientResponse;
-import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
+import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.mapper.AccessMapper;
 import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.model.AccessCard;
@@ -19,7 +19,6 @@ import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

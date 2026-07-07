@@ -23,7 +23,7 @@ public class AccessController {
         this.accessService = accessService;
     }
 
-    @GetMapping()
+    @GetMapping("/logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public List<AccessLogResponse> getAll(){
         return this.accessService.getAllAccess();
