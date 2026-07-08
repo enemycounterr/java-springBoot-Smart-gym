@@ -4,7 +4,6 @@ package com.sprint.training.model;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "access_logs")
