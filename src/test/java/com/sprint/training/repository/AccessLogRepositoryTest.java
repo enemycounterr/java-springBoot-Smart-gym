@@ -10,7 +10,9 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.TestPropertySource;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,9 +48,9 @@ public class AccessLogRepositoryTest {
         AccessLog log2 = new AccessLog("OUT", client, zone);
         AccessLog log3 = new AccessLog("IN", client, zone);
 
-        log1.setTimeStamp(LocalDateTime.now().minusHours(2));
-        log2.setTimeStamp(LocalDateTime.now().minusHours(1));
-        log3.setTimeStamp(LocalDateTime.now());
+        log1.setTimeStamp(Instant.now().minus(30, ChronoUnit.MINUTES));
+        log2.setTimeStamp(Instant.now().minus(10, ChronoUnit.MINUTES));
+        log3.setTimeStamp(Instant.now());
 
         accessLogRepository.saveAll(List.of(log1, log2, log3));
 
