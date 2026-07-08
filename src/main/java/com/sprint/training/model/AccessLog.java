@@ -3,6 +3,7 @@ package com.sprint.training.model;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,7 +17,7 @@ public class AccessLog {
     private String direction;
 
     @Column(nullable = false)
-    private LocalDateTime timeStamp;
+    private Instant timeStamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
@@ -30,7 +31,7 @@ public class AccessLog {
     public AccessLog() {
     }
 
-    public AccessLog(Long id, String direction, LocalDateTime timeStamp, Client client, AccessZone accessZone) {
+    public AccessLog(Long id, String direction, Instant timeStamp, Client client, AccessZone accessZone) {
         this.id = id;
         this.direction = direction;
         this.timeStamp = timeStamp;
@@ -42,7 +43,7 @@ public class AccessLog {
         this.direction = direction;
         this.client = client;
         this.accessZone = accessZone;
-        this.timeStamp = LocalDateTime.now();
+        this.timeStamp = Instant.now();
     }
 
     public AccessZone getAccessZone() {
@@ -69,11 +70,11 @@ public class AccessLog {
         this.direction = direction;
     }
 
-    public LocalDateTime getTimeStamp() {
+    public Instant getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(LocalDateTime timeStamp) {
+    public void setTimeStamp(Instant timeStamp) {
         this.timeStamp = timeStamp;
     }
 

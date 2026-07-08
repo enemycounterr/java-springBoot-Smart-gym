@@ -1,5 +1,6 @@
 package com.sprint.training.dto.access;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record AccessLogResponse(
@@ -8,6 +9,6 @@ public record AccessLogResponse(
         String clientName,
         String zoneName,
         String direction,
-        LocalDateTime timestamp
+        Instant timestamp
 ) {
 }
