@@ -2,6 +2,7 @@ package com.sprint.training.security.controller;
 
 
 import com.sprint.training.security.dto.*;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,16 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name()
+        ));
     }
 
     @PostMapping("/register")
