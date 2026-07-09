@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -88,17 +90,23 @@ public class AuthService {
 
     @Transactional
     public AuthResponse processOAuth2PostLogin(String email, String githubLogin) {
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
+        Optional<User> optionalUser = this.userRepository.findByUsername(githubLogin);
+
+        if (optionalUser.isEmpty()) {
+            optionalUser = this.userRepository.findByEmail(email);
+        }
+
+        User user = optionalUser.orElseGet(() -> {
             User newUser = new User(
                     githubLogin,
                     passwordEncoder.encode(UUID.randomUUID().toString()),
                     Role.GUARD
             );
             newUser.setEmail(email);
-            return userRepository.save(newUser);
+            return this.userRepository.save(newUser);
         });
 
-        refreshTokenRepository.deleteAllByUserId(user.getId());
+        this.refreshTokenRepository.deleteAllByUserId(user.getId());
 
         return buildAuthResponse(user);
     }
