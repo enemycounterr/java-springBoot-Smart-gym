@@ -134,6 +134,7 @@ public class AuthService {
         this.refreshTokenRepository.revokeAllByUserId(user.getId());
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
+        this.userRepository.save(user);
 
     }
 
