@@ -138,6 +138,18 @@ public class AuthService {
 
     }
 
+    @Transactional
+    public void updateRole(Long userId, UpdateRoleRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+
+        this.refreshTokenRepository.revokeAllByUserId(userId);
+        Role newRole = Role.valueOf(request.role().toUpperCase());
+        user.setRole(newRole);
+        this.userRepository.save(user);
+
+    }
+
     @Transactional(noRollbackFor = AccessDeniedException.class)
     public AuthResponse refresh(RefreshRequest refreshRequest) {
         RefreshToken oldRefreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
