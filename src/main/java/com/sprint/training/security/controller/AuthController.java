@@ -56,4 +56,14 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> updatePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UpdatePasswordRequest request
+    ) {
+        this.authService.updatePassword(userDetails.getUsername(), request);
+        return ResponseEntity.noContent().build();
+    }
+
 }

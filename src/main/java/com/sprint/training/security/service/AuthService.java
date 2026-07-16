@@ -11,6 +11,7 @@ import com.sprint.training.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -121,6 +122,20 @@ public class AuthService {
         user.setEmail(request.email());
     }
 
+    @Transactional
+    public void updatePassword(String username,UpdatePasswordRequest request) {
+        User user = this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Wrong current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+
+        this.refreshTokenRepository.revokeAllByUserId(user.getId());
+    }
+
     @Transactional(noRollbackFor = AccessDeniedException.class)
     public AuthResponse refresh(RefreshRequest refreshRequest) {
         RefreshToken oldRefreshToken = this.refreshTokenRepository.findByToken(refreshRequest.refreshToken())
@@ -156,6 +171,7 @@ public class AuthService {
     public void revokeAllUserTokens(Long userId) {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
+
 
     private AuthResponse buildAuthResponse(User user) {
         String accessToken = jwtService.generateToken(user);
