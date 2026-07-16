@@ -131,9 +131,10 @@ public class AuthService {
             throw new BadCredentialsException("Wrong current password");
         }
 
+        this.refreshTokenRepository.revokeAllByUserId(user.getId());
+
         user.setPassword(passwordEncoder.encode(request.newPassword()));
 
-        this.refreshTokenRepository.revokeAllByUserId(user.getId());
     }
 
     @Transactional(noRollbackFor = AccessDeniedException.class)
