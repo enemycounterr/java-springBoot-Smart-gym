@@ -7,6 +7,10 @@ import com.sprint.training.dto.client.ClientUpdateRequest;
 import com.sprint.training.dto.zone.AccessZoneResponse;
 import com.sprint.training.service.ClientService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +28,15 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public List<ClientResponse> getAll(){
-        return this.clientService.getAllClients();
+    public ResponseEntity<Page<ClientResponse>> getAll(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable
+    ) {
+        return ResponseEntity.ok(this.clientService.getAllClients(pageable));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public ClientResponse getClientById(@PathVariable Long id){
+    public ClientResponse getClientById(@PathVariable Long id) {
         return this.clientService.getClientById(id);
     }
 
@@ -49,7 +55,7 @@ public class ClientController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ClientResponse create(@Valid @RequestBody ClientCreateRequest request){
+    public ClientResponse create(@Valid @RequestBody ClientCreateRequest request) {
         return this.clientService.createClient(request);
     }
 

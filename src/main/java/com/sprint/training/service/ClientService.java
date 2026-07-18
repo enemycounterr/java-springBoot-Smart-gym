@@ -12,6 +12,8 @@ import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.model.AccessCard;
 import com.sprint.training.model.Client;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,11 +51,10 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClientResponse> getAllClients() {
+    public Page<ClientResponse> getAllClients(Pageable pageable) {
+        Page<Client> clientsPage = this.clientRepository.findAll(pageable);
 
-        return this.clientRepository.findAllWithAccessCard().stream()
-                .map(clientMapper::toDto)
-                .collect(Collectors.toList());
+        return clientsPage.map(this.clientMapper::toDto);
     }
 
     @Transactional(readOnly = true)

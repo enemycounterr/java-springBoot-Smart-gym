@@ -8,7 +8,12 @@ import com.sprint.training.dto.access.ClientInsideResponse;
 import com.sprint.training.dto.client.ClientResponse;
 import com.sprint.training.service.AccessService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +30,10 @@ public class AccessController {
 
     @GetMapping("/logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public List<AccessLogResponse> getAll(){
-        return this.accessService.getAllAccess();
+    public ResponseEntity<Page<AccessLogResponse>> getAll(
+            @PageableDefault(size = 20, sort = "timeStamp", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(this.accessService.getAllLogs(pageable));
     }
 
     @PostMapping("/clients/{clientId}/zones/{zoneId}")
@@ -45,25 +52,25 @@ public class AccessController {
 
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public AccessLogResponse register(@Valid @RequestBody AccessCheckRequest request){
+    public AccessLogResponse register(@Valid @RequestBody AccessCheckRequest request) {
         return this.accessService.registerAccess(request);
     }
 
     @GetMapping("/clients/{clientId}/stats")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public ClientAccessStatsResponse getStats(@PathVariable Long clientId){
+    public ClientAccessStatsResponse getStats(@PathVariable Long clientId) {
         return this.accessService.getClientStats(clientId);
     }
 
     @GetMapping("/inside")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public List<ClientInsideResponse> getClientInside(){
+    public List<ClientInsideResponse> getClientInside() {
         return this.accessService.getClientInside();
     }
 
     @GetMapping("logs/{logId}/client")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public ClientResponse getClientByLogId(@PathVariable Long logId){
+    public ClientResponse getClientByLogId(@PathVariable Long logId) {
         return this.accessService.getClientByLogId(logId);
     }
 }
