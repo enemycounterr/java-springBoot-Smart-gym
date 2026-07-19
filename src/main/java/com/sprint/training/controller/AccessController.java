@@ -30,7 +30,7 @@ public class AccessController {
 
     @GetMapping("/logs")
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public ResponseEntity<Page<AccessLogResponse>> getAll(
+    public ResponseEntity<Page<AccessLogResponse>> getAllLogs(
             @PageableDefault(size = 20, sort = "timeStamp", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(this.accessService.getAllLogs(pageable));
