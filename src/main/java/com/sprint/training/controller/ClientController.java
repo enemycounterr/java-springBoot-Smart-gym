@@ -29,9 +29,10 @@ public class ClientController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
     public ResponseEntity<Page<ClientResponse>> getAllClients(
+            @RequestParam(required = false) String search,
             @PageableDefault(size = 10, sort = "id") Pageable pageable
     ) {
-        return ResponseEntity.ok(this.clientService.getAllClients(pageable));
+        return ResponseEntity.ok(this.clientService.getAllClients(search, pageable));
     }
 
     @GetMapping("/{id}")

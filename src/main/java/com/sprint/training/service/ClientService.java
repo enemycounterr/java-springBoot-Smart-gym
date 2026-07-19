@@ -12,8 +12,10 @@ import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.model.AccessCard;
 import com.sprint.training.model.Client;
 import com.sprint.training.repository.ClientRepository;
+import com.sprint.training.specification.ClientSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,10 +53,13 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ClientResponse> getAllClients(Pageable pageable) {
-        Page<Client> clientsPage = this.clientRepository.findAll(pageable);
+    public Page<ClientResponse> getAllClients(String searchKeyword, Pageable pageable) {
+        Specification<Client> spec = ClientSpecification.searchByKeyword(searchKeyword);
+
+        Page<Client> clientsPage = this.clientRepository.findAll(spec, pageable);
 
         return clientsPage.map(this.clientMapper::toDto);
+
     }
 
     @Transactional(readOnly = true)
