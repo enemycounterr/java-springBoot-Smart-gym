@@ -28,7 +28,7 @@ public class ClientController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'GUARD')")
-    public ResponseEntity<Page<ClientResponse>> getAll(
+    public ResponseEntity<Page<ClientResponse>> getAllClients(
             @PageableDefault(size = 10, sort = "id") Pageable pageable
     ) {
         return ResponseEntity.ok(this.clientService.getAllClients(pageable));
