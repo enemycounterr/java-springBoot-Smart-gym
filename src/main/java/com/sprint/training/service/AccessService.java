@@ -19,6 +19,8 @@ import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -82,6 +84,7 @@ public class AccessService {
         clientRepository.save(client);
     }
 
+    @CacheEvict(value = "clientStats", key = "#result.clientId")
     @Transactional
     public AccessLogResponse registerAccess(AccessCheckRequest request) {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
@@ -118,8 +121,10 @@ public class AccessService {
         return accessMapper.toDto(savedLog);
     }
 
+    @Cacheable(value = "clientStats", key = "#clientId")
     @Transactional(readOnly = true)
     public ClientAccessStatsResponse getClientStats(Long clientId) {
+        System.out.println("-----------------METHOD INVOKE getClientStats ------------------------");
         Client client = this.clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
 

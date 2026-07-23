@@ -17,6 +17,17 @@ services:
       timeout: 5s
       retries: 5
 
+  redis-cache:
+    image: redis:7-alpine
+    container_name: smart-access-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   smart-gym-app:
     build: .
     container_name: smart-gym-backend
@@ -25,12 +36,16 @@ services:
     depends_on:
       postgres-db:
         condition: service_healthy
+      redis-cache:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - SPRING_DATA_REDIS_HOST=redis-cache
+      - SPRING_DATA_REDIS_PORT=6379
 
   adminer:
     image: adminer

@@ -123,7 +123,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void updatePassword(String username,UpdatePasswordRequest request) {
+    public void updatePassword(String username, UpdatePasswordRequest request) {
         User user = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
