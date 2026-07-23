@@ -24,21 +24,17 @@ public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
-        // 1. Настраиваем защиту типов
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Object.class)
                 .build();
 
-        // 2. ИСПОЛЬЗУЕМ СТРОИТЕЛЬ JsonMapper (правильный подход для Jackson 3)
         JsonMapper jsonMapper = JsonMapper.builder()
-                .findAndAddModules() // Автоматически найдет и подключит модуль для LocalDateTime
+                .findAndAddModules()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL_AND_RECORDS, JsonTypeInfo.As.PROPERTY)
                 .build();
 
-        // 3. Передаем готовый иммутабельный маппер в сериализатор
         GenericJacksonJsonRedisSerializer jsonSerializer = new GenericJacksonJsonRedisSerializer(jsonMapper);
 
-        // 4. Собираем конфиг кэша
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .computePrefixWith(cacheName -> cacheName + "::")
