@@ -12,6 +12,8 @@ import com.sprint.training.model.Client;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class AccessZoneService {
         this.clientMapper = clientMapper;
     }
 
+    @CacheEvict(value = "zones", allEntries = true)
     @Transactional
     public AccessZoneResponse createZone(AccessZoneCreateRequest request) {
         if (zoneRepository.findByZoneName(request.zoneName().toUpperCase()).isPresent()) {
@@ -45,6 +48,7 @@ public class AccessZoneService {
         return zoneMapper.toDto(zoneRepository.save(zone));
     }
 
+    @CacheEvict(value = "zones", allEntries = true)
     @Transactional
     public AccessZoneResponse renameZone(Long zoneId,AccessZoneUpdateRequest request){
         AccessZone zone = this.zoneRepository.findById(zoneId)
@@ -60,13 +64,16 @@ public class AccessZoneService {
         return this.zoneMapper.toDto(zone);
     }
 
+    @Cacheable(value = "zones", key = "'all'")
     @Transactional(readOnly = true)
     public List<AccessZoneResponse> getAllZones() {
+        System.out.println("--------- METHOD INVOKE getAllZones ---------");
         return zoneRepository.findAll().stream()
                 .map(zoneMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "zones", allEntries = true)
     @Transactional
     public void deleteZone(Long zoneId) {
         AccessZone zone = this.zoneRepository.findById(zoneId)
