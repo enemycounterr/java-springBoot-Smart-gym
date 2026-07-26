@@ -72,14 +72,10 @@ public class AccessServiceIntegrationTest extends BaseIntegrationTest {
         assertTrue(Boolean.TRUE.equals(hasKeyInRedis), "The key must be present in Redis after calling the method");
 
         AccessCheckRequest request = new AccessCheckRequest(rfidToken, savedZone.getId(), "IN");
-        AccessLogResponse response = accessService.registerAccess(request);
-
-        System.out.println("=== SAVED CLIENT ID: " + savedClient.getId());
-        System.out.println("=== RESPONSE CLIENT ID: " + response.clientId());
+        accessService.registerAccess(request);
 
         Boolean keyExistsAfterEvict = redisTemplate.hasKey(redisKey);
         assertEquals(Boolean.FALSE, keyExistsAfterEvict, "The key must be removed from Redis after registerAccess");
-
 
         ClientAccessStatsResponse stats2 = accessService.getClientStats(clientId);
         assertEquals(1, stats2.totalEntries(), "Statistics should update to 1 entry");
