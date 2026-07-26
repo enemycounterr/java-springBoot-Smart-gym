@@ -1,9 +1,9 @@
 package com.sprint.training.security.service;
 
-import com.sprint.training.security.model.Role;
-import com.sprint.training.security.model.User;
 import com.sprint.training.security.dto.AuthResponse;
 import com.sprint.training.security.dto.LoginRequest;
+import com.sprint.training.security.model.Role;
+import com.sprint.training.security.model.User;
 import com.sprint.training.security.repository.RefreshTokenRepository;
 import com.sprint.training.security.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -15,9 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
