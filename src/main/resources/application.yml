@@ -10,16 +10,15 @@ spring:
       enabled: true
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/smart_gym}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   data:
     redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
-
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -29,7 +28,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
 
   flyway:
     enabled: true
@@ -49,6 +47,6 @@ spring:
               - read:user
 
 jwt:
-  secret: ${JWT_SECRET:}
-  expiration: ${JWT_EXPIRATION:}
-  refresh-expiration-days: 7
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+  refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS}
