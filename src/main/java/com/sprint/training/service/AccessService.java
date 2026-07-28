@@ -19,6 +19,7 @@ import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -39,14 +40,16 @@ public class AccessService {
     private final AccessCardRepository accessCardRepository;
     private final AccessMapper accessMapper;
     private final ClientMapper clientMapper;
+    private final CacheManager cacheManager;
 
-    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper) {
+    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager) {
         this.accessLogRepository = accessLogRepository;
         this.clientRepository = clientRepository;
         this.accessZoneRepository = accessZoneRepository;
         this.accessCardRepository = accessCardRepository;
         this.accessMapper = accessMapper;
         this.clientMapper = clientMapper;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional(readOnly = true)
@@ -84,7 +87,7 @@ public class AccessService {
         clientRepository.save(client);
     }
 
-    @CacheEvict(value = "clientStats", key = "#result.clientId")
+//    @CacheEvict(value = "clientStats", key = "#result.clientId")
     @Transactional
     public AccessLogResponse registerAccess(AccessCheckRequest request) {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
@@ -118,7 +121,13 @@ public class AccessService {
         AccessLog log = accessMapper.toEntity(request, client, accessZone);
         AccessLog savedLog = this.accessLogRepository.save(log);
 
+        evictClientStatsCache(savedLog.getClient().getId());
+
         return accessMapper.toDto(savedLog);
+    }
+
+    private void evictClientStatsCache(Long clientId) {
+        this.cacheManager.getCache("clientStats").evict(clientId);
     }
 
     @Cacheable(value = "clientStats", key = "#clientId")
