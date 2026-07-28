@@ -1,11 +1,13 @@
 package com.sprint.training.service;
 
 
+import com.sprint.training.config.RabbitMqConfig;
 import com.sprint.training.dto.access.AccessCheckRequest;
 import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
 import com.sprint.training.dto.access.ClientInsideResponse;
 import com.sprint.training.dto.client.ClientResponse;
+import com.sprint.training.dto.rabbitevents.AccessRegisterEvent;
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.exceptions.ZoneAccessDeniedException;
@@ -19,6 +21,7 @@ import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,8 +44,9 @@ public class AccessService {
     private final AccessMapper accessMapper;
     private final ClientMapper clientMapper;
     private final CacheManager cacheManager;
+    private final RabbitTemplate rabbitTemplate;
 
-    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager) {
+    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager, RabbitTemplate rabbitTemplate) {
         this.accessLogRepository = accessLogRepository;
         this.clientRepository = clientRepository;
         this.accessZoneRepository = accessZoneRepository;
@@ -50,6 +54,7 @@ public class AccessService {
         this.accessMapper = accessMapper;
         this.clientMapper = clientMapper;
         this.cacheManager = cacheManager;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -93,10 +98,6 @@ public class AccessService {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
                 .orElseThrow(() -> new ResourceNotFoundException("Access card not found with token:  " + request.rfidToken()));
 
-        if (!card.isActive()) {
-            throw new ZoneAccessDeniedException("Access denied! Card " + request.rfidToken() + " is inactive");
-        }
-
         Client client = card.getClient();
 
         if (!client.isActive()) {
@@ -120,6 +121,21 @@ public class AccessService {
 
         AccessLog log = accessMapper.toEntity(request, client, accessZone);
         AccessLog savedLog = this.accessLogRepository.save(log);
+
+        AccessRegisterEvent event = new AccessRegisterEvent(
+                savedLog.getId(),
+                client.getId(),
+                client.getName(),
+                accessZone.getZoneName(),
+                savedLog.getDirection(),
+                savedLog.getTimeStamp()
+        );
+
+        this.rabbitTemplate.convertAndSend(
+                RabbitMqConfig.EXCHANGE_GYM,
+                RabbitMqConfig.ROUTING_KEY_ACCESS_REGISTERED,
+                event
+        );
 
         evictClientStatsCache(savedLog.getClient().getId());
 
