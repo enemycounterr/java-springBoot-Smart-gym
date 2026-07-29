@@ -2,6 +2,7 @@ package com.sprint.training.service;
 
 
 import com.sprint.training.config.RabbitMqConfig;
+import com.sprint.training.constants.RabbitConstants;
 import com.sprint.training.dto.access.AccessCheckRequest;
 import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
@@ -132,8 +133,8 @@ public class AccessService {
         );
 
         this.rabbitTemplate.convertAndSend(
-                RabbitMqConfig.EXCHANGE_GYM,
-                RabbitMqConfig.ROUTING_KEY_ACCESS_REGISTERED,
+                RabbitConstants.EXCHANGE_GYM,
+                RabbitConstants.ROUTING_KEY_ACCESS_REGISTERED,
                 event
         );
 
