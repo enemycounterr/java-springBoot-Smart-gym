@@ -12,11 +12,9 @@ import tools.jackson.databind.json.JsonMapper;
 @Configuration
 public class RabbitMqConfig {
 
-//    public static final String EXCHANGE_GYM = "gym.events";
-//    public static final String QUEUE_NOTIFICATIONS = "gym.notifications.queue";
-//    public static final String ROUTING_KEY_ACCESS_REGISTERED = "gym.access.registered";
-//    public static final String BINDING_PATTERN_ACCESS = "gym.access.*";
-
+    //================
+    //Main QUEUE
+    //================
     @Bean
     public TopicExchange gymExchange() {
         return new TopicExchange(RabbitConstants.EXCHANGE_GYM);
@@ -24,7 +22,10 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue notificationsQueue() {
-        return QueueBuilder.durable(RabbitConstants.QUEUE_NOTIFICATIONS).build();
+        return QueueBuilder.durable(RabbitConstants.QUEUE_NOTIFICATIONS)
+                .withArgument("x-dead-letter-exchange", RabbitConstants.DLX_GYM)
+                .withArgument("x-dead-letter-routing-key", RabbitConstants.QUEUE_NOTIFICATIONS)
+                .build();
     }
 
     @Bean
@@ -33,6 +34,24 @@ public class RabbitMqConfig {
                 .bind(notificationsQueue)
                 .to(gymExchange)
                 .with(RabbitConstants.BINDING_PATTERN_ACCESS);
+    }
+
+    //================
+    //DLQ
+    //================
+    @Bean
+    public DirectExchange deadLetterExchange() {
+        return new DirectExchange(RabbitConstants.DLX_GYM);
+    }
+
+    @Bean
+    public Queue deadLetterQueue() {
+        return QueueBuilder.durable(RabbitConstants.QUEUE_NOTIFICATIONS_DLQ).build();
+    }
+
+    @Bean
+    public Binding deadLetterBinding(Queue deadLetterQueue, DirectExchange deadLetterExchange) {
+        return BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange).with(RabbitConstants.QUEUE_NOTIFICATIONS);
     }
 
     @Bean
