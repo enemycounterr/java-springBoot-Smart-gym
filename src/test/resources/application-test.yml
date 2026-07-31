@@ -41,3 +41,7 @@ jwt:
   secret: 9z8K8HyV8Z2E2E69dMce2K9mY1EwXwI2uI4M2zC9A1A_SECRET_KEY_FOR_TESTS
   expiration: 900000
   refresh-expiration-days: 7
+
+integration:
+  crm:
+    base-url: http://test-crm-mock
