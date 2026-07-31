@@ -1,4 +1,7 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
   application:
     name: training
   profiles:
@@ -56,3 +59,7 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
   refresh-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS}
+
+integration:
+  crm:
+    base-url: ${INTEGRATION_CRM_BASE_URL}
