@@ -29,7 +29,7 @@ public class AccessCard {
 
     public AccessCard(String rfidToken, Client client){
         this.rfidToken = rfidToken;
-        this.isActive = true;
+        this.isActive = client.isActive();
         this.client = client;
         this.issuedAt = LocalDateTime.now();
     }

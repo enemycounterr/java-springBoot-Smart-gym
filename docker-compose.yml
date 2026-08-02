@@ -72,14 +72,15 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - JWT_REFRESH_EXPIRATION_DAYS=${JWT_REFRESH_EXPIRATION_DAYS}
+      - INTEGRATION_CRM_BASE_URL=${INTEGRATION_CRM_BASE_URL}
 
-  adminer:
-    image: adminer
-    container_name: adminer
-    ports:
-      - "8081:8080"
-    depends_on:
-      - postgres-db
+#  adminer:
+#    image: adminer
+#    container_name: adminer
+#    ports:
+#      - "8081:8080"
+#    depends_on:
+#      - postgres-db
       
 volumes:
   postgres_data:
