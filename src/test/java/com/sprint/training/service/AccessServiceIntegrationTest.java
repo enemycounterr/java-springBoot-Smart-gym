@@ -3,7 +3,6 @@ package com.sprint.training.service;
 
 import com.sprint.training.BaseIntegrationTest;
 import com.sprint.training.dto.access.AccessCheckRequest;
-import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
 import com.sprint.training.model.AccessCard;
 import com.sprint.training.model.AccessZone;
@@ -17,9 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AccessServiceIntegrationTest extends BaseIntegrationTest {
 

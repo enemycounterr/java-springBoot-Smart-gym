@@ -1,7 +1,7 @@
-package com.sprint.training.rabbitlistener;
+package com.sprint.training.messaging.listener;
 
 import com.sprint.training.constants.RabbitConstants;
-import com.sprint.training.dto.rabbitevents.AccessRegisterEvent;
+import com.sprint.training.messaging.event.AccessRegisterEvent;
 import com.sprint.training.exceptions.CrmIntegrationException;
 import com.sprint.training.integration.CrmClient;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;

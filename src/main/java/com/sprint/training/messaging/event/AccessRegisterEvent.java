@@ -1,4 +1,4 @@
-package com.sprint.training.dto.rabbitevents;
+package com.sprint.training.messaging.event;
 
 import java.time.Instant;
 

@@ -1,14 +1,13 @@
 package com.sprint.training.service;
 
 
-import com.sprint.training.config.RabbitMqConfig;
 import com.sprint.training.constants.RabbitConstants;
 import com.sprint.training.dto.access.AccessCheckRequest;
 import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.dto.access.ClientAccessStatsResponse;
 import com.sprint.training.dto.access.ClientInsideResponse;
 import com.sprint.training.dto.client.ClientResponse;
-import com.sprint.training.dto.rabbitevents.AccessRegisterEvent;
+import com.sprint.training.messaging.event.AccessRegisterEvent;
 import com.sprint.training.exceptions.ClientAlreadyExistException;
 import com.sprint.training.exceptions.ResourceNotFoundException;
 import com.sprint.training.exceptions.ZoneAccessDeniedException;
@@ -24,7 +23,6 @@ import com.sprint.training.repository.AccessZoneRepository;
 import com.sprint.training.repository.ClientRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AccessService {
@@ -172,7 +169,7 @@ public class AccessService {
                         log.getTimeStamp()
                 ))
                 .sorted(Comparator.comparing(ClientInsideResponse::insideSince))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
