@@ -28,6 +28,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Comparator;
 import java.util.List;
@@ -141,7 +143,12 @@ public class AccessService {
     }
 
     private void evictClientStatsCache(Long clientId) {
-        this.cacheManager.getCache("clientStats").evict(clientId);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                cacheManager.getCache("clientStats").evict(clientId);
+            }
+        });
     }
 
     @Cacheable(value = "clientStats", key = "#clientId")
