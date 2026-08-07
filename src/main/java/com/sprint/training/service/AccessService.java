@@ -131,13 +131,13 @@ public class AccessService {
                 savedLog.getTimeStamp()
         );
 
+        evictClientStatsCache(savedLog.getClient().getId());
+
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.EXCHANGE_GYM,
                 RabbitConstants.ROUTING_KEY_ACCESS_REGISTERED,
                 event
         );
-
-        evictClientStatsCache(savedLog.getClient().getId());
 
         return accessMapper.toDto(savedLog);
     }
