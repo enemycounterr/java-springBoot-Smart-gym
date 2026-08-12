@@ -13,7 +13,8 @@ public class AccessLog {
     private Long id;
 
     @Column(nullable = false)
-    private String direction;
+    @Enumerated(EnumType.STRING)
+    private AccessDirection direction;
 
     @Column(nullable = false)
     private Instant timeStamp;
@@ -30,7 +31,7 @@ public class AccessLog {
     public AccessLog() {
     }
 
-    public AccessLog(Long id, String direction, Instant timeStamp, Client client, AccessZone accessZone) {
+    public AccessLog(Long id, AccessDirection direction, Instant timeStamp, Client client, AccessZone accessZone) {
         this.id = id;
         this.direction = direction;
         this.timeStamp = timeStamp;
@@ -38,7 +39,7 @@ public class AccessLog {
         this.accessZone = accessZone;
     }
 
-    public AccessLog(String direction, Client client, AccessZone accessZone) {
+    public AccessLog(AccessDirection direction, Client client, AccessZone accessZone) {
         this.direction = direction;
         this.client = client;
         this.accessZone = accessZone;
@@ -61,11 +62,11 @@ public class AccessLog {
         this.id = id;
     }
 
-    public String getDirection() {
+    public AccessDirection getDirection() {
         return direction;
     }
 
-    public void setDirection(String direction) {
+    public void setDirection(AccessDirection direction) {
         this.direction = direction;
     }
 

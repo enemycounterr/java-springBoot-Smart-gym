@@ -1,9 +1,11 @@
 package com.sprint.training.repository;
 
+import com.sprint.training.model.AccessDirection;
 import com.sprint.training.model.AccessLog;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,15 +22,15 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
     @Query("SELECT l FROM AccessLog l")
     List<AccessLog> findAllWithClientAndZone();
 
-    long countByClientIdAndDirectionIgnoreCase(Long clientId, String direction);
+    long countByClientIdAndDirection(Long clientId, AccessDirection direction);
 
     @Query(
             "SELECT l FROM AccessLog l " +
                     "JOIN FETCH l.client " +
                     "WHERE l.timeStamp = (SELECT MAX(sub.timeStamp) FROM AccessLog sub WHERE sub.client = l.client) " +
-                    "AND UPPER(l.direction) = 'IN'"
+                    "AND l.direction = :direction"
     )
-    List<AccessLog> findCurrentClientsInside();
+    List<AccessLog> findCurrentClientsInside(@Param("direction") AccessDirection direction);
 
     Optional<AccessLog> findFirstByClientIdOrderByTimeStampDesc(Long clientId);
 }

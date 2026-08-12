@@ -13,10 +13,7 @@ import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.mapper.AccessMapper;
 import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.messaging.event.AccessRegisterEvent;
-import com.sprint.training.model.AccessCard;
-import com.sprint.training.model.AccessLog;
-import com.sprint.training.model.AccessZone;
-import com.sprint.training.model.Client;
+import com.sprint.training.model.*;
 import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
@@ -114,7 +111,7 @@ public class AccessService {
         }
 
         Optional<AccessLog> latestLog = this.accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(client.getId());
-        if (latestLog.isPresent() && latestLog.get().getDirection().equalsIgnoreCase(request.direction())) {
+        if (latestLog.isPresent() && latestLog.get().getDirection() == request.direction()) {
             throw new ZoneAccessDeniedException("Anti-Passback violation! Client '" + client.getName() +
                     "' already performed direction: " + request.direction());
         }
@@ -158,16 +155,16 @@ public class AccessService {
         Client client = this.clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
 
-        long inCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "IN");
+        long inCount = this.accessLogRepository.countByClientIdAndDirection(clientId, AccessDirection.IN);
 
-        long outCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "OUT");
+        long outCount = this.accessLogRepository.countByClientIdAndDirection(clientId, AccessDirection.OUT);
 
         return new ClientAccessStatsResponse(clientId, client.getName(), inCount, outCount);
     }
 
     @Transactional(readOnly = true)
     public List<ClientInsideResponse> getClientInside() {
-        List<AccessLog> insideLogs = this.accessLogRepository.findCurrentClientsInside();
+        List<AccessLog> insideLogs = this.accessLogRepository.findCurrentClientsInside(AccessDirection.IN);
 
         return insideLogs.stream()
                 .map(log -> new ClientInsideResponse(

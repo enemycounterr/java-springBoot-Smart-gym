@@ -1,5 +1,7 @@
 package com.sprint.training.messaging.event;
 
+import com.sprint.training.model.AccessDirection;
+
 import java.time.Instant;
 
 public record AccessRegisterEvent(
@@ -7,6 +9,6 @@ public record AccessRegisterEvent(
         Long clientId,
         String clientName,
         String zoneName,
-        String direction,
+        AccessDirection direction,
         Instant timestamp
 ) { }

@@ -3,10 +3,7 @@ package com.sprint.training.service;
 
 import com.sprint.training.dto.access.AccessCheckRequest;
 import com.sprint.training.exceptions.ZoneAccessDeniedException;
-import com.sprint.training.model.AccessCard;
-import com.sprint.training.model.AccessLog;
-import com.sprint.training.model.AccessZone;
-import com.sprint.training.model.Client;
+import com.sprint.training.model.*;
 import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
@@ -44,9 +41,9 @@ public class AccessServiceTest {
         AccessZone zone = new AccessZone(1L, "GYM");
         client.addAccessZone(zone);
 
-        AccessCheckRequest request = new AccessCheckRequest(token, 1L, "IN");
+        AccessCheckRequest request = new AccessCheckRequest(token, 1L, AccessDirection.IN);
 
-        AccessLog lastLog = new AccessLog("IN", client, zone);
+        AccessLog lastLog = new AccessLog(AccessDirection.IN, client, zone);
 
         when(accessCardRepository.findByRfidToken(token)).thenReturn(Optional.of(card));
 

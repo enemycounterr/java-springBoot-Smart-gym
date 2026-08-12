@@ -1,5 +1,7 @@
 package com.sprint.training.dto.access;
 
+import com.sprint.training.model.AccessDirection;
+
 import java.time.Instant;
 
 public record AccessLogResponse(
@@ -7,7 +9,7 @@ public record AccessLogResponse(
         Long clientId,
         String clientName,
         String zoneName,
-        String direction,
+        AccessDirection direction,
         Instant timestamp
 ) {
 }
