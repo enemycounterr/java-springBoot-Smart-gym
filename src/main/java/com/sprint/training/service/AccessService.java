@@ -28,6 +28,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Comparator;
 import java.util.List;
@@ -90,7 +92,7 @@ public class AccessService {
         clientRepository.save(client);
     }
 
-//    @CacheEvict(value = "clientStats", key = "#result.clientId")
+    //    @CacheEvict(value = "clientStats", key = "#result.clientId")
     @Transactional
     public AccessLogResponse registerAccess(AccessCheckRequest request) {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
@@ -120,6 +122,8 @@ public class AccessService {
         AccessLog log = accessMapper.toEntity(request, client, accessZone);
         AccessLog savedLog = this.accessLogRepository.save(log);
 
+        evictClientStatsCache(savedLog.getClient().getId());
+
         AccessRegisterEvent event = new AccessRegisterEvent(
                 savedLog.getId(),
                 client.getId(),
@@ -128,26 +132,29 @@ public class AccessService {
                 savedLog.getDirection(),
                 savedLog.getTimeStamp()
         );
-
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.EXCHANGE_GYM,
                 RabbitConstants.ROUTING_KEY_ACCESS_REGISTERED,
                 event
         );
 
-        evictClientStatsCache(savedLog.getClient().getId());
-
         return accessMapper.toDto(savedLog);
     }
 
     private void evictClientStatsCache(Long clientId) {
-        this.cacheManager.getCache("clientStats").evict(clientId);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                cacheManager.getCache("clientStats").evict(clientId);
+            }
+        });
     }
 
     @Cacheable(value = "clientStats", key = "#clientId")
     @Transactional(readOnly = true)
     public ClientAccessStatsResponse getClientStats(Long clientId) {
         System.out.println("-----------------METHOD INVOKE getClientStats ------------------------");
+
         Client client = this.clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
 
