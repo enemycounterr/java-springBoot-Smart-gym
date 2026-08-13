@@ -6,6 +6,7 @@ import com.sprint.training.dto.access.AccessLogResponse;
 import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.mapper.AccessMapper;
 import com.sprint.training.mapper.ClientMapper;
+import com.sprint.training.metrics.service.MetricsService;
 import com.sprint.training.model.*;
 import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
@@ -46,6 +47,8 @@ public class AccessServiceTest {
     private RabbitTemplate rabbitTemplate;
     @Mock
     private ClientRepository clientRepository;
+    @Mock
+    private MetricsService metricsService;
 
     @InjectMocks
     private AccessService accessService;
