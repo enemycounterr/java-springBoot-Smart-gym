@@ -1,10 +1,13 @@
 package com.sprint.training.metrics.service;
 
 
+import com.sprint.training.model.AccessDirection;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MetricsService {
@@ -24,5 +27,21 @@ public class MetricsService {
         this.crmCallDurationTimer = Timer.builder("crm.call.duration")
                 .description("Time taken for CRM calls")
                 .register(meterRegistry);
+    }
+
+    public void incrementAccessEventReceived(AccessDirection direction) {
+        meterRegistry.counter("access.event.received", "direction", direction.name()).increment();
+    }
+
+    public void incrementCrmSuccess() {
+        crmSuccessCounter.increment();
+    }
+
+    public void incrementCrmError(String errorCategory) {
+        meterRegistry.counter("crm.call.error", "error_type", errorCategory).increment();
+    }
+
+    public void recordCrmCallDuration(long durationMs) {
+        crmCallDurationTimer.record(durationMs, TimeUnit.MILLISECONDS);
     }
 }

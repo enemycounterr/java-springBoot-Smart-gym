@@ -13,6 +13,7 @@ import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.mapper.AccessMapper;
 import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.messaging.event.AccessRegisterEvent;
+import com.sprint.training.metrics.service.MetricsService;
 import com.sprint.training.model.*;
 import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
@@ -43,7 +44,9 @@ public class AccessService {
     private final CacheManager cacheManager;
     private final RabbitTemplate rabbitTemplate;
 
-    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager, RabbitTemplate rabbitTemplate) {
+    private final MetricsService metricsService;
+
+    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager, RabbitTemplate rabbitTemplate, MetricsService metricsService) {
         this.accessLogRepository = accessLogRepository;
         this.clientRepository = clientRepository;
         this.accessZoneRepository = accessZoneRepository;
@@ -52,6 +55,7 @@ public class AccessService {
         this.clientMapper = clientMapper;
         this.cacheManager = cacheManager;
         this.rabbitTemplate = rabbitTemplate;
+        this.metricsService = metricsService;
     }
 
     @Transactional(readOnly = true)
@@ -116,10 +120,12 @@ public class AccessService {
                     "' already performed direction: " + request.direction());
         }
 
-        AccessLog log = accessMapper.toEntity(request, client, accessZone);
+        AccessLog log = this.accessMapper.toEntity(request, client, accessZone);
         AccessLog savedLog = this.accessLogRepository.save(log);
 
         evictClientStatsCache(savedLog.getClient().getId());
+
+        this.metricsService.incrementAccessEventReceived(request.direction());
 
         AccessRegisterEvent event = new AccessRegisterEvent(
                 savedLog.getId(),
@@ -137,15 +143,6 @@ public class AccessService {
 
         return accessMapper.toDto(savedLog);
     }
-
-//    private void evictClientStatsCache(Long clientId) {
-//        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-//            @Override
-//            public void afterCommit() {
-//                cacheManager.getCache("clientStats").evict(clientId);
-//            }
-//        });
-//    }
 
     private void evictClientStatsCache(Long clientId) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {

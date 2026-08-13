@@ -74,6 +74,30 @@ services:
       - JWT_REFRESH_EXPIRATION_DAYS=${JWT_REFRESH_EXPIRATION_DAYS}
       - INTEGRATION_CRM_BASE_URL=${INTEGRATION_CRM_BASE_URL}
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: smart-gym-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    depends_on:
+      - smart-gym-app
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: smart-gym-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 #  adminer:
 #    image: adminer
 #    container_name: adminer
@@ -85,3 +109,5 @@ services:
 volumes:
   postgres_data:
   rabbitmq_data:
+  prometheus_data:
+  grafana_data:
