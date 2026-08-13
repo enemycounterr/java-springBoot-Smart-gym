@@ -138,13 +138,26 @@ public class AccessService {
         return accessMapper.toDto(savedLog);
     }
 
+//    private void evictClientStatsCache(Long clientId) {
+//        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+//            @Override
+//            public void afterCommit() {
+//                cacheManager.getCache("clientStats").evict(clientId);
+//            }
+//        });
+//    }
+
     private void evictClientStatsCache(Long clientId) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                cacheManager.getCache("clientStats").evict(clientId);
-            }
-        });
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    cacheManager.getCache("clientStats").evict(clientId);
+                }
+            });
+        } else {
+            cacheManager.getCache("clientStats").evict(clientId);
+        }
     }
 
     @Cacheable(value = "clientStats", key = "#clientId")

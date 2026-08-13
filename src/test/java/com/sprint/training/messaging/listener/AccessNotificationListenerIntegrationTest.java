@@ -63,8 +63,6 @@ public class AccessNotificationListenerIntegrationTest extends BaseIntegrationTe
         accessService.registerAccess(request);
 
         await().atMost(Duration.ofSeconds(5))
-                .untilAsserted(() -> {
-                    verify(crmClient).sendLoyaltyPoints(anyLong(), anyString());
-                });
+                .untilAsserted(() -> verify(crmClient).sendLoyaltyPoints(anyLong(), anyString()));
     }
 }

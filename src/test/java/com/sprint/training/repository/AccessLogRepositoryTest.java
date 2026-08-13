@@ -57,4 +57,25 @@ public class AccessLogRepositoryTest extends BaseIntegrationTest {
         assertEquals("VIP_ZONE", insideClients.get(0).getAccessZone().getZoneName());
         assertEquals("Test User", insideClients.get(0).getClient().getName());
     }
+
+    @Test
+    @Transactional
+    public void countByClientIdAndDirection_shouldCountCorrectlyByEnum() {
+        Client client = new Client(null, "Count User", "count@gym.com", true);
+        clientRepository.save(client);
+
+        AccessZone zone = new AccessZone(null, "COUNT_ZONE");
+        accessZoneRepository.save(zone);
+
+        AccessLog log1 = new AccessLog(AccessDirection.IN, client, zone);
+        AccessLog log2 = new AccessLog(AccessDirection.OUT, client, zone);
+        AccessLog log3 = new AccessLog(AccessDirection.IN, client, zone);
+        accessLogRepository.saveAll(List.of(log1, log2, log3));
+
+        long inCount = accessLogRepository.countByClientIdAndDirection(client.getId(), AccessDirection.IN);
+        long outCount = accessLogRepository.countByClientIdAndDirection(client.getId(), AccessDirection.OUT);
+
+        assertEquals(2, inCount);
+        assertEquals(1, outCount);
+    }
 }

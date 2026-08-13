@@ -18,8 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.time.Duration;
 import java.util.Set;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccessServiceIntegrationTest extends BaseIntegrationTest {
@@ -81,8 +83,10 @@ public class AccessServiceIntegrationTest extends BaseIntegrationTest {
         AccessCheckRequest request = new AccessCheckRequest(rfidToken, savedZone.getId(), AccessDirection.IN);
         accessService.registerAccess(request);
 
-        Boolean keyExistsAfterEvict = redisTemplate.hasKey(redisKey);
-        assertEquals(Boolean.FALSE, keyExistsAfterEvict, "The key must be removed from Redis after registerAccess");
+        await().atMost(Duration.ofSeconds(3))
+                .untilAsserted(() -> {
+                    assertEquals(Boolean.FALSE, redisTemplate.hasKey(redisKey), "The key exists after evict must be false");
+                });
 
         ClientAccessStatsResponse stats2 = accessService.getClientStats(clientId);
         assertEquals(1, stats2.totalEntries(), "Statistics should update to 1 entry");
