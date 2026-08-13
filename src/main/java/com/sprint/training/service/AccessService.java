@@ -135,6 +135,9 @@ public class AccessService {
                 savedLog.getDirection(),
                 savedLog.getTimeStamp()
         );
+
+        evictClientStatsCache(savedLog.getClient().getId());
+
         this.rabbitTemplate.convertAndSend(
                 RabbitConstants.EXCHANGE_GYM,
                 RabbitConstants.ROUTING_KEY_ACCESS_REGISTERED,
