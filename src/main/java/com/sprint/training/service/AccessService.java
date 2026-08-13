@@ -13,10 +13,8 @@ import com.sprint.training.exceptions.ZoneAccessDeniedException;
 import com.sprint.training.mapper.AccessMapper;
 import com.sprint.training.mapper.ClientMapper;
 import com.sprint.training.messaging.event.AccessRegisterEvent;
-import com.sprint.training.model.AccessCard;
-import com.sprint.training.model.AccessLog;
-import com.sprint.training.model.AccessZone;
-import com.sprint.training.model.Client;
+import com.sprint.training.metrics.service.MetricsService;
+import com.sprint.training.model.*;
 import com.sprint.training.repository.AccessCardRepository;
 import com.sprint.training.repository.AccessLogRepository;
 import com.sprint.training.repository.AccessZoneRepository;
@@ -46,7 +44,9 @@ public class AccessService {
     private final CacheManager cacheManager;
     private final RabbitTemplate rabbitTemplate;
 
-    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager, RabbitTemplate rabbitTemplate) {
+    private final MetricsService metricsService;
+
+    public AccessService(AccessLogRepository accessLogRepository, ClientRepository clientRepository, AccessZoneRepository accessZoneRepository, AccessCardRepository accessCardRepository, AccessMapper accessMapper, ClientMapper clientMapper, CacheManager cacheManager, RabbitTemplate rabbitTemplate, MetricsService metricsService) {
         this.accessLogRepository = accessLogRepository;
         this.clientRepository = clientRepository;
         this.accessZoneRepository = accessZoneRepository;
@@ -55,6 +55,7 @@ public class AccessService {
         this.clientMapper = clientMapper;
         this.cacheManager = cacheManager;
         this.rabbitTemplate = rabbitTemplate;
+        this.metricsService = metricsService;
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +93,7 @@ public class AccessService {
         clientRepository.save(client);
     }
 
-//    @CacheEvict(value = "clientStats", key = "#result.clientId")
+    //    @CacheEvict(value = "clientStats", key = "#result.clientId")
     @Transactional
     public AccessLogResponse registerAccess(AccessCheckRequest request) {
         AccessCard card = accessCardRepository.findByRfidToken(request.rfidToken())
@@ -114,13 +115,17 @@ public class AccessService {
         }
 
         Optional<AccessLog> latestLog = this.accessLogRepository.findFirstByClientIdOrderByTimeStampDesc(client.getId());
-        if (latestLog.isPresent() && latestLog.get().getDirection().equalsIgnoreCase(request.direction())) {
+        if (latestLog.isPresent() && latestLog.get().getDirection() == request.direction()) {
             throw new ZoneAccessDeniedException("Anti-Passback violation! Client '" + client.getName() +
                     "' already performed direction: " + request.direction());
         }
 
-        AccessLog log = accessMapper.toEntity(request, client, accessZone);
+        AccessLog log = this.accessMapper.toEntity(request, client, accessZone);
         AccessLog savedLog = this.accessLogRepository.save(log);
+
+        evictClientStatsCache(savedLog.getClient().getId());
+
+        this.metricsService.incrementAccessEventReceived(request.direction());
 
         AccessRegisterEvent event = new AccessRegisterEvent(
                 savedLog.getId(),
@@ -143,31 +148,36 @@ public class AccessService {
     }
 
     private void evictClientStatsCache(Long clientId) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                cacheManager.getCache("clientStats").evict(clientId);
-            }
-        });
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    cacheManager.getCache("clientStats").evict(clientId);
+                }
+            });
+        } else {
+            cacheManager.getCache("clientStats").evict(clientId);
+        }
     }
 
     @Cacheable(value = "clientStats", key = "#clientId")
     @Transactional(readOnly = true)
     public ClientAccessStatsResponse getClientStats(Long clientId) {
         System.out.println("-----------------METHOD INVOKE getClientStats ------------------------");
+
         Client client = this.clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + clientId));
 
-        long inCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "IN");
+        long inCount = this.accessLogRepository.countByClientIdAndDirection(clientId, AccessDirection.IN);
 
-        long outCount = this.accessLogRepository.countByClientIdAndDirectionIgnoreCase(clientId, "OUT");
+        long outCount = this.accessLogRepository.countByClientIdAndDirection(clientId, AccessDirection.OUT);
 
         return new ClientAccessStatsResponse(clientId, client.getName(), inCount, outCount);
     }
 
     @Transactional(readOnly = true)
     public List<ClientInsideResponse> getClientInside() {
-        List<AccessLog> insideLogs = this.accessLogRepository.findCurrentClientsInside();
+        List<AccessLog> insideLogs = this.accessLogRepository.findCurrentClientsInside(AccessDirection.IN);
 
         return insideLogs.stream()
                 .map(log -> new ClientInsideResponse(

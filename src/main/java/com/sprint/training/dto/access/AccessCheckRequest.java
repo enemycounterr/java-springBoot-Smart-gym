@@ -1,5 +1,6 @@
 package com.sprint.training.dto.access;
 
+import com.sprint.training.model.AccessDirection;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
@@ -10,7 +11,7 @@ public record AccessCheckRequest(
         @NotNull(message = "Zone ID cannot be null")
         Long zoneId,
 
-        @Pattern(regexp = "IN|OUT", message = "Direction must be either 'IN' or 'OUT'")
-        String direction
+        @NotNull(message = "Direction must be 'IN' or 'OUT'")
+        AccessDirection direction
 ) {
 }

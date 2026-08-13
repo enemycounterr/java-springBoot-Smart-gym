@@ -67,3 +67,15 @@ jwt:
 integration:
   crm:
     base-url: ${INTEGRATION_CRM_BASE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}

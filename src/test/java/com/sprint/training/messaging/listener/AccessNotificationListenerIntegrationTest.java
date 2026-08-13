@@ -2,8 +2,8 @@ package com.sprint.training.messaging.listener;
 
 import com.sprint.training.BaseIntegrationTest;
 import com.sprint.training.dto.access.AccessCheckRequest;
-import com.sprint.training.integration.CrmClient;
 import com.sprint.training.model.AccessCard;
+import com.sprint.training.model.AccessDirection;
 import com.sprint.training.model.AccessZone;
 import com.sprint.training.model.Client;
 import com.sprint.training.repository.AccessCardRepository;
@@ -13,9 +13,6 @@ import com.sprint.training.service.AccessService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-
 
 import java.time.Duration;
 
@@ -38,20 +35,11 @@ public class AccessNotificationListenerIntegrationTest extends BaseIntegrationTe
     @Autowired
     private AccessZoneRepository accessZoneRepository;
 
-    @MockitoBean
-    private CrmClient crmClient;
-
     private String testRfidToken = "RFID_TEST_999";
     private Long testZoneId;
 
     @BeforeEach
     void setUp() {
-
-        accessCardRepository.deleteAll();
-        clientRepository.deleteAll();
-        accessZoneRepository.deleteAll();
-
-
         AccessZone zone = new AccessZone();
         zone.setZoneName("Cardio Zone");
 
@@ -70,13 +58,11 @@ public class AccessNotificationListenerIntegrationTest extends BaseIntegrationTe
     @Test
     void shouldSendMessageToRabbitMqAndTriggerCrmClient_whenAccessIsRegistered() {
 
-        AccessCheckRequest request = new AccessCheckRequest(testRfidToken, testZoneId, "IN");
+        AccessCheckRequest request = new AccessCheckRequest(testRfidToken, testZoneId, AccessDirection.IN);
 
         accessService.registerAccess(request);
 
         await().atMost(Duration.ofSeconds(5))
-                .untilAsserted(() -> {
-                    verify(crmClient).sendLoyaltyPoints(anyLong(), anyString());
-                });
+                .untilAsserted(() -> verify(crmClient).sendLoyaltyPoints(anyLong(), anyString()));
     }
 }
