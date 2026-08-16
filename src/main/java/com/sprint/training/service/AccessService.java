@@ -132,7 +132,7 @@ public class AccessService {
                 client.getId(),
                 client.getName(),
                 accessZone.getZoneName(),
-                savedLog.getDirection(),
+                savedLog.getDirection().name(),
                 savedLog.getTimeStamp()
         );
 

@@ -4,7 +4,6 @@ import com.sprint.training.constants.RabbitConstants;
 import com.sprint.training.exceptions.CrmIntegrationException;
 import com.sprint.training.integration.CrmClient;
 import com.sprint.training.messaging.event.AccessRegisterEvent;
-import com.sprint.training.model.AccessDirection;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,7 @@ public class AccessNotificationListener {
         System.out.println(" RCV EVENT FROM RABBITMQ ");
         System.out.println("Client: " + event.clientName() + " (ID: " + event.clientId() + ")");
 
-        if (event.direction() == AccessDirection.IN) {
+        if ("IN".equals(event.direction())) {
             try {
                 System.out.println("Sending data to external CRM...");
                 this.crmClient.sendLoyaltyPoints(event.clientId(), event.clientName());

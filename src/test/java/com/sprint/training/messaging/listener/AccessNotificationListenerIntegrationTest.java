@@ -19,6 +19,7 @@ import java.time.Duration;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class AccessNotificationListenerIntegrationTest extends BaseIntegrationTest {
@@ -64,5 +65,16 @@ public class AccessNotificationListenerIntegrationTest extends BaseIntegrationTe
 
         await().atMost(Duration.ofSeconds(5))
                 .untilAsserted(() -> verify(crmClient).sendLoyaltyPoints(anyLong(), anyString()));
+    }
+
+    @Test
+    void shouldNotSendLoyaltyPointsToCrm_whenAccessDirectionIsOut() {
+
+        AccessCheckRequest request = new AccessCheckRequest(testRfidToken, testZoneId, AccessDirection.OUT);
+
+        accessService.registerAccess(request);
+
+        await().atMost(Duration.ofSeconds(5))
+                .untilAsserted(() -> verify(crmClient, never()).sendLoyaltyPoints(anyLong(), anyString()));
     }
 }
