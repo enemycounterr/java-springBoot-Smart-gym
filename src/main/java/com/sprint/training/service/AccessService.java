@@ -60,7 +60,7 @@ public class AccessService {
 
     @Transactional(readOnly = true)
     public Page<AccessLogResponse> getAllLogs(Pageable pageable) {
-        Page<AccessLog> logsPage = this.accessLogRepository.findAll(pageable);
+        Page<AccessLog> logsPage = this.accessLogRepository.findAllWithClientAndZone(pageable);
 
         return logsPage.map(this.accessMapper::toDto);
     }

@@ -2,11 +2,14 @@ package com.sprint.training.repository;
 
 import com.sprint.training.model.AccessDirection;
 import com.sprint.training.model.AccessLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +23,7 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
 
     @EntityGraph(attributePaths = {"client", "accessZone"})
     @Query("SELECT l FROM AccessLog l")
-    List<AccessLog> findAllWithClientAndZone();
+    Page<AccessLog> findAllWithClientAndZone(Pageable pageable);
 
     long countByClientIdAndDirection(Long clientId, AccessDirection direction);
 
